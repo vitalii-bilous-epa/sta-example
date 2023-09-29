@@ -36,7 +36,9 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "format": "int64"
+              "format": "int64",
+              "min": 0,
+              "max": 100500
             }
           }
         ],

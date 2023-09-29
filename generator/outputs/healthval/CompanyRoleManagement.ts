@@ -9,8 +9,8 @@
  * ---------------------------------------------------------------
  */
 
-import { CompanyRoleDto } from './data-contracts'
-import { HttpClient, RequestParams } from './http-client'
+import { CompanyRoleDto } from "./data-contracts";
+import { HttpClient, RequestParams } from "./http-client";
 
 export class CompanyRoleManagement<SecurityDataType = unknown> extends HttpClient<SecurityDataType> {
   /*
@@ -48,7 +48,7 @@ updateCompanyRole = () =>
        * Test identifier
        * @format int64
        */
-      test_one?: number
+      test_one?: number;
     },
     params: RequestParams = {},
   ) => {
@@ -65,5 +65,5 @@ updateCompanyRole = () =>
         timeout: 10000,
     });
     */
-  }
+  };
 }

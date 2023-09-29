@@ -10,10 +10,10 @@
  */
 
 export interface CompanyRoleCreateDto {
-  companyAccessLevel?: CompanyAccessLevel
+  companyAccessLevel?: CompanyAccessLevel;
   /** @minLength 1 */
-  name: string
-  description?: string | null
+  name: string;
+  description?: string | null;
 }
 
 /** @format int64 */
@@ -32,14 +32,14 @@ export enum CompanyAccessLevel {
 
 export interface CompanyRoleDto {
   /** @format int64 */
-  id: number
+  id: number;
   /** @format date-time */
-  createdAt?: string
+  createdAt?: string;
   /** @format date-time */
-  updatedAt?: string | null
-  companyAccessLevel?: CompanyAccessLevel
+  updatedAt?: string | null;
+  companyAccessLevel?: CompanyAccessLevel;
   /** @minLength 1 */
-  name: string
-  isEnabled?: boolean
-  description?: string | null
+  name: string;
+  isEnabled?: boolean;
+  description?: string | null;
 }

@@ -18,6 +18,7 @@ const requestConfigParam = {
     type: "RequestParams",
     defaultValue: "{}",
 }
+console.log('>>> query:', query)
 
 const argToTmpl = ({ name, optional, type, defaultValue }) => `${name}${!defaultValue && optional ? '?' : ''}: ${type}${defaultValue ? ` = ${defaultValue}` : ''}`;
 
@@ -44,9 +45,10 @@ const wrapperArgs = _
     .sortBy(rawWrapperArgs, [o => o.optional])
     .map(argToTmpl)
     .join(', ')
-    // console.log('>>> requestParams:', requestParams)
-    // console.log('>>> rawWrapperArgs: ', rawWrapperArgs)
-    // console.log('>>> wrapperArgs: ', wrapperArgs)
+    console.log('===================================')
+    console.log('>>> requestParams:', requestParams)
+    console.log('>>> rawWrapperArgs: ', rawWrapperArgs)
+    console.log('>>> wrapperArgs: ', wrapperArgs)
 // RequestParams["type"]
 const requestContentKind = {
     "JSON": "ContentType.Json",
