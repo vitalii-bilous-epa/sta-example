@@ -1,0 +1,460 @@
+{
+  "openapi": "3.0.2",
+  "info": { "title": "HealthVAL", "description": "Health event incidence summaries for a dairy", "version": "0.1.0" },
+  "servers": [{ "url": "/healthval" }],
+  "paths": {
+    "/dairies/{dairy_id}/cows/{dairy_cow_id}/events/lifetime": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Given cow all events accross lactations",
+        "operationId": "events_cow_dairies__dairy_id__cows__dairy_cow_id__events_lifetime_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": { "title": "Dairy Id", "minimum": 1.0, "type": "integer" },
+            "name": "dairy_id",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": { "title": "Dairy Cow Id", "minimum": 1.0, "type": "integer" },
+            "name": "dairy_cow_id",
+            "in": "path"
+          },
+          {
+            "description": "List of EventCodes",
+            "required": false,
+            "schema": {
+              "title": "Codes",
+              "type": "array",
+              "items": { "type": "integer" },
+              "description": "List of EventCodes",
+              "default": []
+            },
+            "name": "codes",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CowLactationEvents" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/api/companies/{companyId}/roles/{companyRoleId}": {
+      "get": {
+        "tags": ["Company Role Management"],
+        "summary": "Retrieves a company role",
+        "operationId": "GetCompanyRole",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "Company identifier",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "companyRoleId",
+            "in": "path",
+            "description": "Company role identifier",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Company role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyRoleCreateDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company role not found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [null, null, null]
+          }
+        ],
+        "x-vas-claims": ["RequireAcceptedAgreement", "Company:Read"],
+        "x-vas-src": {
+          "controller": "CompanyRoleController.cs",
+          "method": "GetCompanyRole"
+        }
+      },
+      "put": {
+        "tags": ["Company Role Management"],
+        "summary": "Updates a company role",
+        "operationId": "UpdateCompanyRole",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "Company identifier",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "companyRoleId",
+            "in": "path",
+            "description": "Company role identifier",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "test",
+            "in": "query",
+            "description": "Test identifier",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated company role",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyRoleDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyRoleDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful update"
+          },
+          "400": {
+            "description": "Bad request, invalid model",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Company role not found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [null, null, null]
+          }
+        ],
+        "x-vas-claims": ["RequireAcceptedAgreement", "Company:UserManagement"],
+        "x-vas-src": {
+          "controller": "CompanyRoleController.cs",
+          "method": "UpdateCompanyRole"
+        }
+      },
+      "delete": {
+        "tags": ["Company Role Management"],
+        "summary": "Deletes a company role",
+        "operationId": "DeleteCompanyRole",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "Company identifier",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "companyRoleId",
+            "in": "path",
+            "description": "Company role identifier",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful delete"
+          },
+          "404": {
+            "description": "Company role not found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [null, null, null]
+          }
+        ],
+        "x-vas-claims": ["RequireAcceptedAgreement", "Company:UserManagement"],
+        "x-vas-src": {
+          "controller": "CompanyRoleController.cs",
+          "method": "DeleteCompanyRole"
+        }
+      }
+    },
+    "/dairies/{dairy_id}/unbred/heifers": {
+      "get": {
+        "tags": ["unbred-animals"],
+        "summary": "List unbred heifers currently exceeding VWP",
+        "description": "Returns a list of animals currently unbred beyond `threshold` number of days eligible.",
+        "operationId": "get_unbred_heifers_dairies__dairy_id__unbred_heifers_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "threshold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }],
+              "description": "Minimum days of breeding eligibility to consider (defaults to config VWP).",
+              "title": "Threshold"
+            },
+            "description": "Minimum days of breeding eligibility to consider (defaults to config VWP)."
+          },
+          {
+            "name": "exceeds",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "Return animals which exceed the threshold (true), or animals which do not exceed the threshold (false).",
+              "default": true,
+              "title": "Exceeds"
+            },
+            "description": "Return animals which exceed the threshold (true), or animals which do not exceed the threshold (false)."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnbredHeifersResponse" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CowLactationEvents": {
+        "title": "CowLactationEvents",
+        "required": ["cowLactationEvents"],
+        "type": "object",
+        "properties": {
+          "cowLactationEvents": {
+            "title": "Cowlactationevents",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CowLactationEvent" }
+          }
+        }
+      },
+      "CowLactationEvent": {
+        "title": "CowLactationEvent",
+        "required": ["lactation", "totalMilk", "eventCounts", "estimatedCost"],
+        "type": "object",
+        "properties": {
+          "lactation": { "title": "Lactation", "type": "integer" },
+          "totalMilk": { "title": "Totalmilk", "type": "integer" },
+          "eventCounts": {
+            "title": "Eventcounts",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/EventCount" }
+          },
+          "estimatedCost": { "title": "Estimatedcost", "type": "number" }
+        }
+      },
+      "EventCount": {
+        "title": "EventCount",
+        "required": ["eventCode", "count"],
+        "type": "object",
+        "properties": {
+          "eventCode": { "title": "Eventcode", "type": "integer" },
+          "count": { "title": "Count", "type": "integer" }
+        }
+      },
+      "HTTPValidationError": {
+        "title": "HTTPValidationError",
+        "type": "object",
+        "properties": {
+          "detail": { "title": "Detail", "type": "array", "items": { "$ref": "#/components/schemas/ValidationError" } }
+        }
+      },
+      "ValidationError": {
+        "title": "ValidationError",
+        "required": ["loc", "msg", "type"],
+        "type": "object",
+        "properties": {
+          "loc": { "title": "Location", "type": "array", "items": { "type": "string" } },
+          "msg": { "title": "Message", "type": "string" },
+          "type": { "title": "Error Type", "type": "string" }
+        }
+      },
+      "CompanyRoleCreateDto": {
+        "required": ["name"],
+        "type": "object",
+        "properties": {
+          "companyAccessLevel": {
+            "$ref": "#/components/schemas/CompanyAccessLevel"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyAccessLevel": {
+        "enum": [0, 1, 2, 4, 8, 16, 32, 256, 512, 831],
+        "type": "integer",
+        "format": "int64"
+      },
+      "CompanyRoleDto": {
+        "required": ["id", "name"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "companyAccessLevel": {
+            "$ref": "#/components/schemas/CompanyAccessLevel"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UnbredHeifer": {
+        "properties": {
+          "dairyCowId": { "type": "integer", "title": "Dairycowid" },
+          "cowNumber": { "type": "integer", "title": "Cownumber" },
+          "cowName": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Cowname" },
+          "visibleId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Visibleid" },
+          "controlNumber": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Controlnumber" },
+          "penNumber": { "type": "integer", "title": "Pennumber" },
+          "electronicId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Electronicid" },
+          "isoId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Isoid" },
+          "ageInDays": { "type": "integer", "title": "Ageindays" }
+        },
+        "type": "object",
+        "required": [
+          "dairyCowId",
+          "cowNumber",
+          "cowName",
+          "visibleId",
+          "controlNumber",
+          "penNumber",
+          "electronicId",
+          "isoId",
+          "ageInDays"
+        ],
+        "title": "UnbredHeifer"
+      },
+      "UnbredHeifersResponse": {
+        "properties": {
+          "usedThreshold": { "type": "integer", "title": "Usedthreshold" },
+          "animals": { "items": { "$ref": "#/components/schemas/UnbredHeifer" }, "type": "array", "title": "Animals" }
+        },
+        "type": "object",
+        "required": ["usedThreshold", "animals"],
+        "title": "UnbredHeifersResponse"
+      }
+    }
+  }
+}

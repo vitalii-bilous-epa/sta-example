@@ -1,0 +1,169 @@
+{
+  "openapi": "3.0.2",
+  "info": { "title": "HealthVAL", "description": "Health event incidence summaries for a dairy", "version": "0.1.0" },
+  "servers": [{ "url": "/healthval" }],
+  "paths": {
+    "/api/companies/{companyId}/roles/{companyRoleId}": {
+      "put": {
+        "tags": ["Company Role Management"],
+        "summary": "Updates a company role",
+        "operationId": "UpdateCompanyRole",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "Company identifier",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "companyRoleId",
+            "in": "path",
+            "description": "Company role identifier",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "test_one",
+            "in": "query",
+            "description": "Test identifier",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated company role",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyRoleDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyRoleDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Company role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyRoleCreateDto"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful update"
+          },
+          "400": {
+            "description": "Bad request, invalid model",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Company role not found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [null, null, null]
+          }
+        ],
+        "x-vas-claims": ["RequireAcceptedAgreement", "Company:UserManagement"],
+        "x-vas-src": {
+          "controller": "CompanyRoleController.cs",
+          "method": "UpdateCompanyRole"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CompanyRoleCreateDto": {
+        "required": ["name"],
+        "type": "object",
+        "properties": {
+          "companyAccessLevel": {
+            "$ref": "#/components/schemas/CompanyAccessLevel"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyAccessLevel": {
+        "enum": [0, 1, 2, 4, 8, 16, 32, 256, 512, 831],
+        "type": "integer",
+        "format": "int64"
+      },
+      "CompanyRoleDto": {
+        "required": ["id", "name"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "companyAccessLevel": {
+            "$ref": "#/components/schemas/CompanyAccessLevel"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

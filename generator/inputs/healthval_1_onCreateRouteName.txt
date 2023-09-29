@@ -1,0 +1,399 @@
+>>> onCreateRouteName {
+  usage: 'updateCompanyRole',
+  original: 'updateCompanyRole',
+  duplicate: false
+} {
+  'x-vas-claims': [ 'RequireAcceptedAgreement', 'Company:UserManagement' ],
+  'x-vas-src': {
+    controller: 'CompanyRoleController.cs',
+    method: 'UpdateCompanyRole'
+  },
+  pathArgs: [
+    {
+      name: 'companyId',
+      optional: false,
+      type: 'any',
+      description: 'Company identifier'
+    },
+    {
+      name: 'companyRoleId',
+      optional: false,
+      type: 'any',
+      description: 'Company role identifier'
+    }
+  ],
+  operationId: 'UpdateCompanyRole',
+  method: 'put',
+  route: '/api/companies/{companyId}/roles/{companyRoleId}',
+  moduleName: 'companyRoleManagement',
+  responsesTypes: [
+    {
+      description: 'Company role',
+      content: [Object],
+      contentTypes: [Array],
+      contentKind: 'JSON',
+      type: 'CompanyRoleCreateDto',
+      status: 200,
+      isSuccess: true
+    },
+    {
+      description: 'Successful update',
+      contentTypes: [],
+      contentKind: 'OTHER',
+      type: 'void',
+      status: 204,
+      isSuccess: true
+    },
+    {
+      description: 'Bad request, invalid model',
+      content: [Object],
+      contentTypes: [Array],
+      contentKind: 'JSON',
+      type: 'any',
+      status: 400,
+      isSuccess: false
+    },
+    {
+      description: 'Unauthorized',
+      contentTypes: [],
+      contentKind: 'OTHER',
+      type: 'void',
+      status: 401,
+      isSuccess: false
+    },
+    {
+      description: 'Forbidden',
+      contentTypes: [],
+      contentKind: 'OTHER',
+      type: 'void',
+      status: 403,
+      isSuccess: false
+    },
+    {
+      description: 'Company role not found',
+      contentTypes: [],
+      contentKind: 'OTHER',
+      type: 'void',
+      status: 404,
+      isSuccess: false
+    }
+  ],
+  description: undefined,
+  tags: [ 'Company Role Management' ],
+  summary: 'Updates a company role',
+  responses: {
+    '200': { description: 'Company role', content: [Object] },
+    '204': { description: 'Successful update' },
+    '400': { description: 'Bad request, invalid model', content: [Object] },
+    '401': { description: 'Unauthorized' },
+    '403': { description: 'Forbidden' },
+    '404': { description: 'Company role not found' }
+  },
+  produces: [],
+  requestBody: {
+    description: 'Updated company role',
+    content: {
+      'application/json': [Object],
+      'text/json': [Object],
+      'application/*+json': [Object]
+    }
+  },
+  consumes: []
+}
+>>> onCreateRoute:routeData {        
+  id: 'jkwfawa7ppza',
+  namespace: 'companyRoleManagement',
+  routeName: {
+    usage: 'updateCompanyRole',      
+    original: 'updateCompanyRole',   
+    duplicate: false
+  },
+  routeParams: {
+    path: [ [Object], [Object] ],    
+    header: [],
+    body: [],
+    query: [ [Object] ],
+    formData: [],
+    cookie: []
+  },
+  requestBodyInfo: {
+    paramName: 'data',
+    contentTypes: [ 'application/json', 'text/json', 'application/*+json' ],
+    contentKind: 'JSON',
+    schema: {
+      '$ref': '#/components/schemas/CompanyRoleDto',
+      dataType: 'application/json'
+    },
+    type: 'CompanyRoleDto',
+    required: true
+  },
+  responseBodyInfo: {
+    contentTypes: [ 'application/json' ],
+    responses: [ [Object], [Object], [Object], [Object], [Object], [Object] ],
+    success: { schema: [Object], type: 'CompanyRoleCreateDto' },
+    error: { schemas: [Array], type: 'void' },
+    full: {
+      types: '{\n' +
+        '      data: CompanyRoleCreateDto, status: 200, statusCode: 200, statusText: "Company role", headers: {}, config: {} } | {\n' 
++
+        '      data: void, status: 204, statusCode: 204, statusText: "Successful update", headers: {}, config: {} } | {\n' +
+        '      data: any, status: 400, statusCode: 400, statusText: "Bad request, invalid model", headers: {}, config: {} } | {\n' +  
+        '      data: void, status: 401, statusCode: 401, statusText: "Unauthorized", headers: {}, config: {} } | {\n' +
+        '      data: void, status: 403, statusCode: 403, statusText: "Forbidden", headers: {}, config: {} } | {\n' +
+        '      data: void, status: 404, statusCode: 404, statusText: "Company role not found", headers: {}, config: {} }'
+    }
+  },
+  specificArgs: {
+    query: {
+      name: 'query',
+      optional: true,
+      type: '{\n' +
+        '  /**\n' +
+        '   * Test identifier\n' +
+        '   * @format int64\n' +
+        '   */\n' +
+        '    test?: number,\n' +
+        '\n' +
+        '}'
+    },
+    body: { name: 'data', optional: false, type: 'CompanyRoleDto' },
+    pathParams: {
+      name: 'path',
+      optional: false,
+      type: '{\n' +
+        '  /**\n' +
+        '   * Company identifier\n' +
+        '   * @format int64\n' +
+        '   */\n' +
+        '    companyId: number,\n' +
+        '  /**\n' +
+        '   * Company role identifier\n' +
+        '   * @format int64\n' +
+        '   */\n' +
+        '    companyRoleId: number,\n' +
+        '\n' +
+        '}'
+    },
+    headers: undefined
+  },
+  queryObjectSchema: {
+    properties: { test: [Object] },
+    type: 'object',
+    '$parsed': {
+      properties: [Object],
+      type: 'object',
+      '$schemaPath': [Array],
+      '$parsedSchema': true,
+      schemaType: 'object',
+      typeIdentifier: 'interface',
+      name: null,
+      description: '',
+      allFieldsAreOptional: true,
+      content: [Array]
+    }
+  },
+  pathObjectSchema: {
+    properties: { companyId: [Object], companyRoleId: [Object] },
+    type: 'object',
+    '$parsed': {
+      properties: [Object],
+      type: 'object',
+      '$schemaPath': [Array],
+      '$parsedSchema': true,
+      schemaType: 'object',
+      typeIdentifier: 'interface',
+      name: null,
+      description: '',
+      allFieldsAreOptional: false,
+      content: [Array]
+    }
+  },
+  headersObjectSchema: { properties: {}, type: 'object' },
+  responseBodySchema: {
+    description: 'Company role',
+    content: { 'application/json': [Object] },
+    contentTypes: [ 'application/json' ],
+    contentKind: 'JSON',
+    type: 'CompanyRoleCreateDto',
+    status: 200,
+    isSuccess: true
+  },
+  requestBodySchema: {
+    '$ref': '#/components/schemas/CompanyRoleDto',
+    dataType: 'application/json'
+  },
+  specificArgNameResolver: SpecificArgNameResolver {
+    reservedNames: [ 'companyId', 'companyRoleId', 'query', 'data', 'path' ],
+    getFallbackName: [Function (anonymous)],
+    config: CodeGenConfig {
+      version: '13.0.3',
+      templates: 'C:\\Users\\Vitalii_Bilous\\Projects\\Morpheus-FE\\src\\api-client\\generator\\modular-templates',
+      generateResponses: true,
+      defaultResponseAsSuccess: false,
+      generateRouteTypes: false,
+      generateClient: true,
+      generateUnionEnums: false,
+      addReadonly: false,
+      enumNamesAsValues: false,
+      swaggerSchema: [Object],
+      originalSchema: [Object],
+      componentsMap: {},
+      convertedFromSwagger2: false,
+      moduleNameIndex: 0,
+      moduleNameFirstTag: true,
+      disableStrictSSL: false,
+      disableProxy: false,
+      extractRequestParams: false,
+      extractRequestBody: false,
+      extractResponseBody: false,
+      extractResponseError: false,
+      extractResponses: false,
+      extractEnums: true,
+      fileNames: [Object],
+      routeNameDuplicatesMap: [Map],
+      prettierOptions: [Object],
+      hooks: [Object],
+      defaultResponseType: 'void',
+      singleHttpClient: false,
+      httpClientType: 'fetch',
+      unwrapResponseData: true,
+      disableThrowOnError: false,
+      sortTypes: false,
+      sortRoutes: false,
+      templatePaths: [Object],
+      templatesToRender: [Object],
+      schemaParsers: {},
+      toJS: false,
+      silent: false,
+      typePrefix: '',
+      typeSuffix: '',
+      enumKeyPrefix: '',
+      enumKeySuffix: '',
+      patch: false,
+      componentTypeNameResolver: [ComponentTypeNameResolver],
+      apiClassName: 'Api',
+      debug: false,
+      anotherArrayType: false,
+      internalTemplateOptions: [Object],
+      extraTemplates: [],
+      input: 'C:\\Users\\Vitalii_Bilous\\Projects\\Morpheus-FE\\src\\api-client\\generator\\inputs\\healthval_1.json',
+      modular: true,
+      output: 'C:\\Users\\Vitalii_Bilous\\Projects\\Morpheus-FE\\src\\api-client\\generator\\healthval',
+      url: '',
+      cleanOutput: true,
+      spec: null,
+      fileName: 'healthval.ts',
+      authorizationToken: undefined,
+      requestOptions: null,
+      jsPrimitiveTypes: [Array],
+      jsEmptyTypes: [Array],
+      fixInvalidTypeNamePrefix: 'Type',
+      fixInvalidEnumKeyPrefix: 'Value',
+      enumKeyResolverName: 'Value',
+      typeNameResolverName: 'ComponentType',
+      specificArgNameResolverName: 'arg',
+      successResponseStatusRange: [Array],
+      extractingOptions: [Object],
+      compilerTsConfig: [Object],
+      customTranslator: undefined,
+      Ts: [Object],
+      primitiveTypes: [Object],
+      templateInfos: [Array],
+      templateExtensions: [Array],
+      update: [Function: update],
+      constants: [Object]
+    },
+    logger: Logger {
+      firstLog: false,
+      config: [CodeGenConfig],
+      createLogMessage: [Function: createLogMessage],
+      log: [Function: log],
+      event: [Function: event],
+      success: [Function: success],
+      warn: [Function: warn],
+      error: [Function: error],
+      debug: [Function: debug]
+    },
+    counter: 1
+  },
+  request: {
+    contentTypes: [ 'application/json', 'text/json', 'application/*+json' ],
+    parameters: [ [Object], [Object] ],
+    path: '/api/companies/${companyId}/roles/${companyRoleId}',
+    formData: false,
+    isQueryBody: false,
+    security: true,
+    method: 'put',
+    requestParams: { properties: [Object], type: 'object' },
+    payload: { name: 'data', optional: false, type: 'CompanyRoleDto' },
+    query: {
+      name: 'query',
+      optional: true,
+      type: '{\n' +
+        '  /**\n' +
+        '   * Test identifier\n' +
+        '   * @format int64\n' +
+        '   */\n' +
+        '    test?: number,\n' +
+        '\n' +
+        '}'
+    },
+    pathParams: {
+      name: 'path',
+      optional: false,
+      type: '{\n' +
+        '  /**\n' +
+        '   * Company identifier\n' +
+        '   * @format int64\n' +
+        '   */\n' +
+        '    companyId: number,\n' +
+        '  /**\n' +
+        '   * Company role identifier\n' +
+        '   * @format int64\n' +
+        '   */\n' +
+        '    companyRoleId: number,\n' +
+        '\n' +
+        '}'
+    },
+    headers: undefined
+  },
+  response: {
+    contentTypes: [ 'application/json' ],
+    type: 'CompanyRoleCreateDto',
+    errorType: 'void',
+    fullTypes: '{\n' +
+      '      data: CompanyRoleCreateDto, status: 200, statusCode: 200, statusText: "Company role", headers: {}, config: {} } | {\n' + 
+      '      data: void, status: 204, statusCode: 204, statusText: "Successful update", headers: {}, config: {} } | {\n' +
+      '      data: any, status: 400, statusCode: 400, statusText: "Bad request, invalid model", headers: {}, config: {} } | {\n' +    
+      '      data: void, status: 401, statusCode: 401, statusText: "Unauthorized", headers: {}, config: {} } | {\n' +
+      '      data: void, status: 403, statusCode: 403, statusText: "Forbidden", headers: {}, config: {} } | {\n' +
+      '      data: void, status: 404, statusCode: 404, statusText: "Company role not found", headers: {}, config: {} }'
+  },
+  raw: {
+    'x-vas-claims': [ 'RequireAcceptedAgreement', 'Company:UserManagement' ],
+    'x-vas-src': {
+      controller: 'CompanyRoleController.cs',
+      method: 'UpdateCompanyRole'
+    },
+    pathArgs: [ [Object], [Object] ],
+    operationId: 'UpdateCompanyRole',
+    method: 'put',
+    route: '/api/companies/{companyId}/roles/{companyRoleId}',
+    moduleName: 'companyRoleManagement',
+    responsesTypes: [ [Object], [Object], [Object], [Object], [Object], [Object] ],
+    description: undefined,
+    tags: [ 'Company Role Management' ],
+    summary: 'Updates a company role',
+    responses: {
+      '200': [Object],
+      '204': [Object],
+      '400': [Object],
+      '401': [Object],
+      '403': [Object],
+      '404': [Object]
+    },
+    produces: [],
+    requestBody: { description: 'Updated company role', content: [Object] },
+    consumes: []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "sta-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "generate": "ts-node ./generator/index.ts",
+    "tgenerate": "ts-node ./generator/generate.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitalii-bilous-epa/sta-example.git"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.0",
+    "typescript": "^5.2.2"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vitalii-bilous-epa/sta-example/issues"
+  },
+  "homepage": "https://github.com/vitalii-bilous-epa/sta-example#readme",
+  "dependencies": {
+    "swagger-typescript-api": "^13.0.3"
+  }
+}

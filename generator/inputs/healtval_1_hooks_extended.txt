@@ -1,0 +1,843 @@
+>>> onInit
+>>> onCreateComponent {
+  '$ref': '#/components/schemas/CompanyRoleCreateDto',
+  typeName: 'CompanyRoleCreateDto',
+  rawTypeData: {
+    required: [ 'name' ],
+    type: 'object',
+    properties: {
+      companyAccessLevel: [Object],
+      name: [Object],
+      description: [Object]
+    },
+    additionalProperties: false
+  },
+  componentName: 'schemas',
+  typeData: null
+}
+>>> onCreateComponent {
+  '$ref': '#/components/schemas/CompanyAccessLevel',
+  typeName: 'CompanyAccessLevel',
+  rawTypeData: {
+    enum: [
+       0,  1,   2,   4,   8,
+      16, 32, 256, 512, 831
+    ],
+    type: 'integer',
+    format: 'int64'
+  },
+  componentName: 'schemas',
+  typeData: null
+}
+>>> onCreateComponent {
+  '$ref': '#/components/schemas/CompanyRoleDto',
+  typeName: 'CompanyRoleDto',
+  rawTypeData: {
+    required: [ 'id', 'name' ],
+    type: 'object',
+    properties: {
+      id: [Object],
+      createdAt: [Object],
+      updatedAt: [Object],
+      companyAccessLevel: [Object],
+      name: [Object],
+      isEnabled: [Object],
+      description: [Object]
+    },
+    additionalProperties: false
+  },
+  componentName: 'schemas',
+  typeData: null
+}
+>>> onPreParseSchema {
+  required: [ 'name' ],
+  type: 'object',
+  properties: {
+    companyAccessLevel: { '$ref': '#/components/schemas/CompanyAccessLevel' },
+    name: { minLength: 1, type: 'string' },
+    description: { type: 'string', nullable: true }
+  },
+  additionalProperties: false
+} CompanyRoleCreateDto object
+>>> onFormatTypeName CompanyAccessLevel type-name
+>>> onPreParseSchema { '$ref': '#/components/schemas/CompanyAccessLevel' } CompanyAccessLevel primitive
+>>> onParseSchema { '$ref': '#/components/schemas/CompanyAccessLevel' } {
+  '$ref': '#/components/schemas/CompanyAccessLevel',
+  '$schemaPath': [
+    'CompanyRoleCreateDto',
+    'companyAccessLevel',
+    'CompanyAccessLevel'
+  ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  type: 'primitive',
+  typeIdentifier: 'type',
+  name: 'CompanyAccessLevel',
+  description: '',
+  content: 'CompanyAccessLevel'
+}
+>>> onPreParseSchema { minLength: 1, type: 'string' } null primitive
+>>> onParseSchema { minLength: 1, type: 'string' } {
+  minLength: 1,
+  type: 'primitive',
+  '$schemaPath': [ 'CompanyRoleCreateDto', 'name', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'string'
+}
+>>> onPreParseSchema { type: 'string', nullable: true } null primitive
+>>> onParseSchema { type: 'string', nullable: true } {
+  type: 'primitive',
+  nullable: true,
+  '$schemaPath': [ 'CompanyRoleCreateDto', 'description', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'string | null'
+}
+>>> onParseSchema {
+  required: [ 'name' ],
+  type: 'object',
+  properties: {
+    companyAccessLevel: {
+      '$ref': '#/components/schemas/CompanyAccessLevel',
+      '$parsed': [Object]
+    },
+    name: { minLength: 1, type: 'string', '$parsed': [Object] },
+    description: { type: 'string', nullable: true, '$parsed': [Object] }
+  },
+  additionalProperties: false
+} {
+  required: [ 'name' ],
+  type: 'object',
+  properties: {
+    companyAccessLevel: {
+      '$ref': '#/components/schemas/CompanyAccessLevel',
+      '$parsed': [Object]
+    },
+    name: { minLength: 1, type: 'string', '$parsed': [Object] },
+    description: { type: 'string', nullable: true, '$parsed': [Object] }
+  },
+  additionalProperties: false,
+  '$schemaPath': [ 'CompanyRoleCreateDto' ],
+  '$parsedSchema': true,
+  schemaType: 'object',
+  typeIdentifier: 'interface',
+  name: 'CompanyRoleCreateDto',
+  description: '',
+  allFieldsAreOptional: false,
+  content: [
+    {
+      '$ref': '#/components/schemas/CompanyAccessLevel',
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      description: '',
+      isRequired: false,
+      isNullable: false,
+      name: 'companyAccessLevel',
+      value: 'CompanyAccessLevel',
+      field: 'companyAccessLevel?: CompanyAccessLevel'
+    },
+    {
+      minLength: 1,
+      type: 'string',
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      description: '',
+      isRequired: true,
+      isNullable: false,
+      name: 'name',
+      value: 'string',
+      field: 'name: string'
+    },
+    {
+      type: 'string',
+      nullable: true,
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      description: '',
+      isRequired: false,
+      isNullable: true,
+      name: 'description',
+      value: 'string | null',
+      field: 'description?: string | null'
+    }
+  ]
+}
+>>> onPreParseSchema {
+  enum: [
+     0,  1,   2,   4,   8,
+    16, 32, 256, 512, 831
+  ],
+  type: 'integer',
+  format: 'int64'
+} CompanyAccessLevel enum
+>>> onFormatTypeName 0 enum-key
+>>> onFormatTypeName 1 enum-key
+>>> onFormatTypeName 2 enum-key
+>>> onFormatTypeName 4 enum-key
+>>> onFormatTypeName 8 enum-key
+>>> onFormatTypeName 16 enum-key
+>>> onFormatTypeName 32 enum-key
+>>> onFormatTypeName 256 enum-key
+>>> onFormatTypeName 512 enum-key
+>>> onFormatTypeName 831 enum-key
+>>> onParseSchema {
+  enum: [
+     0,  1,   2,   4,   8,
+    16, 32, 256, 512, 831
+  ],
+  type: 'integer',
+  format: 'int64'
+} {
+  enum: [
+     0,  1,   2,   4,   8,
+    16, 32, 256, 512, 831
+  ],
+  type: 'enum',
+  format: 'int64',
+  '$ref': null,
+  typeName: 'CompanyAccessLevel',
+  '$parsedSchema': true,
+  schemaType: 'enum',
+  keyType: 'number',
+  typeIdentifier: 'enum',
+  name: 'CompanyAccessLevel',
+  description: '',
+  content: [
+    { key: 'Value0', type: 'number', value: '0' },
+    { key: 'Value1', type: 'number', value: '1' },
+    { key: 'Value2', type: 'number', value: '2' },
+    { key: 'Value4', type: 'number', value: '4' },
+    { key: 'Value8', type: 'number', value: '8' },
+    { key: 'Value16', type: 'number', value: '16' },
+    { key: 'Value32', type: 'number', value: '32' },
+    { key: 'Value256', type: 'number', value: '256' },
+    { key: 'Value512', type: 'number', value: '512' },
+    { key: 'Value831', type: 'number', value: '831' }
+  ]
+}
+>>> onPreParseSchema {
+  required: [ 'id', 'name' ],
+  type: 'object',
+  properties: {
+    id: { type: 'integer', format: 'int64' },
+    createdAt: { type: 'string', format: 'date-time' },
+    updatedAt: { type: 'string', format: 'date-time', nullable: true },
+    companyAccessLevel: { '$ref': '#/components/schemas/CompanyAccessLevel' },
+    name: { minLength: 1, type: 'string' },
+    isEnabled: { type: 'boolean' },
+    description: { type: 'string', nullable: true }
+  },
+  additionalProperties: false
+} CompanyRoleDto object
+>>> onPreParseSchema { type: 'integer', format: 'int64' } null primitive
+>>> onParseSchema { type: 'integer', format: 'int64' } {
+  type: 'primitive',
+  format: 'int64',
+  '$schemaPath': [ 'CompanyRoleDto', 'id', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'number'
+}
+>>> onPreParseSchema { type: 'string', format: 'date-time' } null primitive
+>>> onParseSchema { type: 'string', format: 'date-time' } {
+  type: 'primitive',
+  format: 'date-time',
+  '$schemaPath': [ 'CompanyRoleDto', 'createdAt', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'string'
+}
+>>> onPreParseSchema { type: 'string', format: 'date-time', nullable: true } null primitive
+>>> onParseSchema { type: 'string', format: 'date-time', nullable: true } {
+  type: 'primitive',
+  format: 'date-time',
+  nullable: true,
+  '$schemaPath': [ 'CompanyRoleDto', 'updatedAt', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'string | null'
+}
+>>> onPreParseSchema { '$ref': '#/components/schemas/CompanyAccessLevel' } CompanyAccessLevel primitive
+>>> onParseSchema { '$ref': '#/components/schemas/CompanyAccessLevel' } {
+  '$ref': '#/components/schemas/CompanyAccessLevel',
+  '$schemaPath': [ 'CompanyRoleDto', 'companyAccessLevel', 'CompanyAccessLevel' ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  type: 'primitive',
+  typeIdentifier: 'type',
+  name: 'CompanyAccessLevel',
+  description: '',
+  content: 'CompanyAccessLevel'
+}
+>>> onPreParseSchema { minLength: 1, type: 'string' } null primitive
+>>> onParseSchema { minLength: 1, type: 'string' } {
+  minLength: 1,
+  type: 'primitive',
+  '$schemaPath': [ 'CompanyRoleDto', 'name', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'string'
+}
+>>> onPreParseSchema { type: 'boolean' } null primitive
+>>> onParseSchema { type: 'boolean' } {
+  type: 'primitive',
+  '$schemaPath': [ 'CompanyRoleDto', 'isEnabled', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'boolean'
+}
+>>> onPreParseSchema { type: 'string', nullable: true } null primitive
+>>> onParseSchema { type: 'string', nullable: true } {
+  type: 'primitive',
+  nullable: true,
+  '$schemaPath': [ 'CompanyRoleDto', 'description', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'string | null'
+}
+>>> onParseSchema {
+  required: [ 'id', 'name' ],
+  type: 'object',
+  properties: {
+    id: { type: 'integer', format: 'int64', '$parsed': [Object] },
+    createdAt: { type: 'string', format: 'date-time', '$parsed': [Object] },
+    updatedAt: {
+      type: 'string',
+      format: 'date-time',
+      nullable: true,
+      '$parsed': [Object]
+    },
+    companyAccessLevel: {
+      '$ref': '#/components/schemas/CompanyAccessLevel',
+      '$parsed': [Object]
+    },
+    name: { minLength: 1, type: 'string', '$parsed': [Object] },
+    isEnabled: { type: 'boolean', '$parsed': [Object] },
+    description: { type: 'string', nullable: true, '$parsed': [Object] }
+  },
+  additionalProperties: false
+} {
+  required: [ 'id', 'name' ],
+  type: 'object',
+  properties: {
+    id: { type: 'integer', format: 'int64', '$parsed': [Object] },
+    createdAt: { type: 'string', format: 'date-time', '$parsed': [Object] },
+    updatedAt: {
+      type: 'string',
+      format: 'date-time',
+      nullable: true,
+      '$parsed': [Object]
+    },
+    companyAccessLevel: {
+      '$ref': '#/components/schemas/CompanyAccessLevel',
+      '$parsed': [Object]
+    },
+    name: { minLength: 1, type: 'string', '$parsed': [Object] },
+    isEnabled: { type: 'boolean', '$parsed': [Object] },
+    description: { type: 'string', nullable: true, '$parsed': [Object] }
+  },
+  additionalProperties: false,
+  '$schemaPath': [ 'CompanyRoleDto' ],
+  '$parsedSchema': true,
+  schemaType: 'object',
+  typeIdentifier: 'interface',
+  name: 'CompanyRoleDto',
+  description: '',
+  allFieldsAreOptional: false,
+  content: [
+    {
+      type: 'integer',
+      format: 'int64',
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      description: '',
+      isRequired: true,
+      isNullable: false,
+      name: 'id',
+      value: 'number',
+      field: 'id: number'
+    },
+    {
+      type: 'string',
+      format: 'date-time',
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      description: '',
+      isRequired: false,
+      isNullable: false,
+      name: 'createdAt',
+      value: 'string',
+      field: 'createdAt?: string'
+    },
+    {
+      type: 'string',
+      format: 'date-time',
+      nullable: true,
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      description: '',
+      isRequired: false,
+      isNullable: true,
+      name: 'updatedAt',
+      value: 'string | null',
+      field: 'updatedAt?: string | null'
+    },
+    {
+      '$ref': '#/components/schemas/CompanyAccessLevel',
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      description: '',
+      isRequired: false,
+      isNullable: false,
+      name: 'companyAccessLevel',
+      value: 'CompanyAccessLevel',
+      field: 'companyAccessLevel?: CompanyAccessLevel'
+    },
+    {
+      minLength: 1,
+      type: 'string',
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      description: '',
+      isRequired: true,
+      isNullable: false,
+      name: 'name',
+      value: 'string',
+      field: 'name: string'
+    },
+    {
+      type: 'boolean',
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      description: '',
+      isRequired: false,
+      isNullable: false,
+      name: 'isEnabled',
+      value: 'boolean',
+      field: 'isEnabled?: boolean'
+    },
+    {
+      type: 'string',
+      nullable: true,
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      description: '',
+      isRequired: false,
+      isNullable: true,
+      name: 'description',
+      value: 'string | null',
+      field: 'description?: string | null'
+    }
+  ]
+}
+>>> onFormatTypeName CompanyRoleCreateDto type-name
+>>> onPreParseSchema {
+  '$ref': '#/components/schemas/CompanyRoleCreateDto',
+  dataType: 'application/json'
+} CompanyRoleCreateDto primitive
+>>> onParseSchema {
+  '$ref': '#/components/schemas/CompanyRoleCreateDto',
+  dataType: 'application/json'
+} {
+  '$ref': '#/components/schemas/CompanyRoleCreateDto',
+  dataType: 'application/json',
+  '$schemaPath': [ 'UpdateCompanyRole', 'CompanyRoleCreateDto' ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  type: 'primitive',
+  typeIdentifier: 'type',
+  name: 'CompanyRoleCreateDto',
+  description: '',
+  content: 'CompanyRoleCreateDto'
+}
+>>> onPreParseSchema { dataType: 'application/json' } null primitive
+>>> onParseSchema { dataType: 'application/json' } {
+  dataType: 'application/json',
+  '$schemaPath': [ 'UpdateCompanyRole', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  type: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'any'
+}
+>>> onFormatTypeName CompanyRoleDto type-name
+>>> onFormatRouteName
+>>> onCreateRouteName
+>>> onPreParseSchema {
+  '$ref': '#/components/schemas/CompanyRoleDto',
+  dataType: 'application/json'
+} CompanyRoleDto primitive
+>>> onParseSchema {
+  '$ref': '#/components/schemas/CompanyRoleDto',
+  dataType: 'application/json'
+} {
+  '$ref': '#/components/schemas/CompanyRoleDto',
+  dataType: 'application/json',
+  '$schemaPath': [ 'UpdateCompanyRole', 'CompanyRoleDto' ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  type: 'primitive',
+  typeIdentifier: 'type',
+  name: 'CompanyRoleDto',
+  description: '',
+  content: 'CompanyRoleDto'
+}
+>>> onCreateRequestParams:rawType
+>>> onPreParseSchema {
+  properties: {
+    test: {
+      name: 'test',
+      in: 'query',
+      description: 'Test identifier',
+      required: false,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'test'
+    }
+  },
+  type: 'object'
+} null object
+>>> onPreParseSchema {
+  name: 'test',
+  in: 'query',
+  description: 'Test identifier',
+  required: false,
+  schema: { type: 'integer', format: 'int64' },
+  type: 'integer',
+  format: 'int64',
+  '$origName': 'test'
+} null primitive
+>>> onParseSchema {
+  name: 'test',
+  in: 'query',
+  description: 'Test identifier',
+  required: false,
+  schema: { type: 'integer', format: 'int64' },
+  type: 'integer',
+  format: 'int64',
+  '$origName': 'test'
+} {
+  name: null,
+  in: 'query',
+  description: 'Test identifier',
+  required: false,
+  schema: { type: 'integer', format: 'int64' },
+  type: 'primitive',
+  format: 'int64',
+  '$origName': 'test',
+  '$schemaPath': [ 'UpdateCompanyRoleParams', null, 'test', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  content: 'number'
+}
+>>> onParseSchema {
+  properties: {
+    test: {
+      name: 'test',
+      in: 'query',
+      description: 'Test identifier',
+      required: false,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'test',
+      '$parsed': [Object]
+    }
+  },
+  type: 'object'
+} {
+  properties: {
+    test: {
+      name: 'test',
+      in: 'query',
+      description: 'Test identifier',
+      required: false,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'test',
+      '$parsed': [Object]
+    }
+  },
+  type: 'object',
+  '$schemaPath': [ 'UpdateCompanyRoleParams', null ],
+  '$parsedSchema': true,
+  schemaType: 'object',
+  typeIdentifier: 'interface',
+  name: null,
+  description: '',
+  allFieldsAreOptional: true,
+  content: [
+    {
+      name: 'test',
+      in: 'query',
+      description: 'Test identifier',
+      required: false,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'test',
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      isRequired: false,
+      isNullable: false,
+      value: 'number',
+      field: 'test?: number'
+    }
+  ]
+}
+>>> onPreParseSchema {
+  properties: {
+    companyId: {
+      name: 'companyId',
+      in: 'path',
+      description: 'Company identifier',
+      required: true,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'companyId'
+    },
+    companyRoleId: {
+      name: 'companyRoleId',
+      in: 'path',
+      description: 'Company role identifier',
+      required: true,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'companyRoleId'
+    }
+  },
+  type: 'object'
+} null object
+>>> onPreParseSchema {
+  name: 'companyId',
+  in: 'path',
+  description: 'Company identifier',
+  required: true,
+  schema: { type: 'integer', format: 'int64' },
+  type: 'integer',
+  format: 'int64',
+  '$origName': 'companyId'
+} null primitive
+>>> onParseSchema {
+  name: 'companyId',
+  in: 'path',
+  description: 'Company identifier',
+  required: true,
+  schema: { type: 'integer', format: 'int64' },
+  type: 'integer',
+  format: 'int64',
+  '$origName': 'companyId'
+} {
+  name: null,
+  in: 'path',
+  description: 'Company identifier',
+  required: true,
+  schema: { type: 'integer', format: 'int64' },
+  type: 'primitive',
+  format: 'int64',
+  '$origName': 'companyId',
+  '$schemaPath': [ 'UpdateCompanyRoleParams', null, 'companyId', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  content: 'number'
+}
+>>> onPreParseSchema {
+  name: 'companyRoleId',
+  in: 'path',
+  description: 'Company role identifier',
+  required: true,
+  schema: { type: 'integer', format: 'int64' },
+  type: 'integer',
+  format: 'int64',
+  '$origName': 'companyRoleId'
+} null primitive
+>>> onParseSchema {
+  name: 'companyRoleId',
+  in: 'path',
+  description: 'Company role identifier',
+  required: true,
+  schema: { type: 'integer', format: 'int64' },
+  type: 'integer',
+  format: 'int64',
+  '$origName': 'companyRoleId'
+} {
+  name: null,
+  in: 'path',
+  description: 'Company role identifier',
+  required: true,
+  schema: { type: 'integer', format: 'int64' },
+  type: 'primitive',
+  format: 'int64',
+  '$origName': 'companyRoleId',
+  '$schemaPath': [ 'UpdateCompanyRoleParams', null, 'companyRoleId', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  content: 'number'
+}
+>>> onParseSchema {
+  properties: {
+    companyId: {
+      name: 'companyId',
+      in: 'path',
+      description: 'Company identifier',
+      required: true,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'companyId',
+      '$parsed': [Object]
+    },
+    companyRoleId: {
+      name: 'companyRoleId',
+      in: 'path',
+      description: 'Company role identifier',
+      required: true,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'companyRoleId',
+      '$parsed': [Object]
+    }
+  },
+  type: 'object'
+} {
+  properties: {
+    companyId: {
+      name: 'companyId',
+      in: 'path',
+      description: 'Company identifier',
+      required: true,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'companyId',
+      '$parsed': [Object]
+    },
+    companyRoleId: {
+      name: 'companyRoleId',
+      in: 'path',
+      description: 'Company role identifier',
+      required: true,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'companyRoleId',
+      '$parsed': [Object]
+    }
+  },
+  type: 'object',
+  '$schemaPath': [ 'UpdateCompanyRoleParams', null ],
+  '$parsedSchema': true,
+  schemaType: 'object',
+  typeIdentifier: 'interface',
+  name: null,
+  description: '',
+  allFieldsAreOptional: false,
+  content: [
+    {
+      name: 'companyId',
+      in: 'path',
+      description: 'Company identifier',
+      required: true,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'companyId',
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      isRequired: true,
+      isNullable: false,
+      value: 'number',
+      field: 'companyId: number'
+    },
+    {
+      name: 'companyRoleId',
+      in: 'path',
+      description: 'Company role identifier',
+      required: true,
+      schema: [Object],
+      type: 'integer',
+      format: 'int64',
+      '$origName': 'companyRoleId',
+      '$parsed': [Object],
+      '$$raw': [Object],
+      title: undefined,
+      isRequired: true,
+      isNullable: false,
+      value: 'number',
+      field: 'companyRoleId: number'
+    }
+  ]
+}
+>>> onPreParseSchema { type: 'integer', format: 'int64' } null primitive
+>>> onParseSchema { type: 'integer', format: 'int64' } {
+  type: 'primitive',
+  format: 'int64',
+  '$schemaPath': [ 'UpdateCompanyRoleParams', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'number'
+}
+>>> onPreParseSchema { type: 'integer', format: 'int64' } null primitive
+>>> onParseSchema { type: 'integer', format: 'int64' } {
+  type: 'primitive',
+  format: 'int64',
+  '$schemaPath': [ 'UpdateCompanyRoleParams', null ],
+  '$parsedSchema': true,
+  schemaType: 'primitive',
+  typeIdentifier: 'type',
+  name: null,
+  description: '',
+  content: 'number'
+}
+>>> onCreateRoute:routeData
+>>> onPrepareConfig

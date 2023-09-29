@@ -1,0 +1,1809 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Reproduction Insights",
+    "description": "Microservice providing conception and reproduction insights endpoints.",
+    "version": "0.1.0"
+  },
+  "servers": [{ "url": "/bredsum" }],
+  "paths": {
+    "/dairies/{dairy_id}/abortion-analysis": {
+      "get": {
+        "tags": ["abortion-analysis"],
+        "summary": "Abortion rate analysis by selected group and options",
+        "description": "If neither `start_date` nor `end_date` are provided, the default date range is `today-400D` to `today-35D`.\n\nIf only `end_date` is provided, `start_date` is automatically set to `today-400D`.\n\nIf date range needs to be defined, both `start_date` and `end_date` must be set.",
+        "operationId": "get_abortion_risk_dairies__dairy_id__abortion_analysis_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "$ref": "#/components/schemas/LactationGroup" }, { "type": "null" }],
+              "description": "\nSelect lactation group for analysis.\n\n- `0`: heifers\n- `1`: 1st lactation\n- `2`: 2nd lactation\n- `3`: 3rd+ lactations\n- `4`: (default) all cows\n",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "\nSelect lactation group for analysis.\n\n- `0`: heifers\n- `1`: 1st lactation\n- `2`: 2nd lactation\n- `3`: 3rd+ lactations\n- `4`: (default) all cows\n"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.178662",
+              "title": "Start Date"
+            },
+            "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.178662",
+              "title": "End Date"
+            },
+            "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "$ref": "#/components/schemas/AbortionSummaryGroup" }, { "type": "null" }],
+              "description": "The groupby field to be used for the abortion calculations.",
+              "default": "LactationGroup",
+              "title": "Group By"
+            },
+            "description": "The groupby field to be used for the abortion calculations."
+          },
+          {
+            "name": "abort_range",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "minItems": 2,
+                  "prefixItems": [{ "type": "integer" }, { "type": "integer" }],
+                  "maxItems": 2
+                },
+                { "type": "null" }
+              ],
+              "description": "List of lower and upper bounds to consider for Days carrying calf at abortion (inclusive).",
+              "default": [42, 260],
+              "title": "Abort Range"
+            },
+            "description": "List of lower and upper bounds to consider for Days carrying calf at abortion (inclusive)."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AbortionRiskResponse" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/calculated-vwp": {
+      "get": {
+        "tags": ["calculated-vwp"],
+        "summary": "Calculate actual Voluntary Waiting Period (VWP)",
+        "description": "Calculated Voluntary Waiting Period (VWP) for the 14 month period ending on `end_date`.\n\nCow values are returned as Days In Milk. Heifer values are returned as  Age in Days.\n\nReturned groups when `heifers=false`:\n- `0`: all cows (overall VWP)\n- `1-3`: 1st, 2nd, 3rd+ lactation group VWPs\n\nReturned groups when `heifers=true`:\n- `0`: all heifers (overall VWP)",
+        "operationId": "get_calculated_vwp_dairies__dairy_id__calculated_vwp_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "End date of analysis (start automatically set to 14 months prior).",
+              "default": "2023-09-26T12:46:08.190080",
+              "title": "End Date"
+            },
+            "description": "End date of analysis (start automatically set to 14 months prior)."
+          },
+          {
+            "name": "heifers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "Request heifers (lactation 0) instead of cows (lactations 1+). Default is `false`.",
+              "default": false,
+              "title": "Heifers"
+            },
+            "description": "Request heifers (lactation 0) instead of cows (lactations 1+). Default is `false`."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CalculatedVWPResponse" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/conception-risk": {
+      "get": {
+        "tags": ["conception-risk"],
+        "summary": "Conception risk analysis by selected group and options",
+        "description": "If neither `start_date` nor `end_date` are provided, the default date\nrange will be selected as `today-400D` to `today-35D`.\n\nIf only `end_date` is provided, `start_date` is set to `today-400d`.\n\nIn cases where the date range needs to be defined, both `start_date`\nand `end_date` need to be set.",
+        "operationId": "get_conception_risk_dairies__dairy_id__conception_risk_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "all_breedings",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "\nSelect analysis target breedings.\n\n- `False`: (default) includes just AI breedings\n- `True`: includes both AI & Bull Breedings\n",
+              "default": false,
+              "title": "All Breedings"
+            },
+            "description": "\nSelect analysis target breedings.\n\n- `False`: (default) includes just AI breedings\n- `True`: includes both AI & Bull Breedings\n"
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "$ref": "#/components/schemas/LactationGroup" }, { "type": "null" }],
+              "description": "\nOptionally restrict lactation group(s) for analysis.\n\n- `0`: for youngstocks\n- `1-3`: for 1st, 2nd, 3rd+ lactations\n- `4`: (default) for all cows\n",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "\nOptionally restrict lactation group(s) for analysis.\n\n- `0`: for youngstocks\n- `1-3`: for 1st, 2nd, 3rd+ lactations\n- `4`: (default) for all cows\n"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.207127",
+              "title": "Start Date"
+            },
+            "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.207127",
+              "title": "End Date"
+            },
+            "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                { "type": "array", "items": { "$ref": "#/components/schemas/ConceptionSummaryGroup" } },
+                { "type": "null" }
+              ],
+              "description": "\nThe groupby field(s) to be used to group the breedings.\nOne or two fields may be selected for grouping.\n\nIn the case two fields are selected, the returned `groupName` and\n`groupValue`s will be joined with a `|` character in the order\nthey were provided as query parameters.\n",
+              "min_items": 1,
+              "max_items": 2,
+              "default": ["LactationGroup"],
+              "title": "Group By"
+            },
+            "description": "\nThe groupby field(s) to be used to group the breedings.\nOne or two fields may be selected for grouping.\n\nIn the case two fields are selected, the returned `groupName` and\n`groupValue`s will be joined with a `|` character in the order\nthey were provided as query parameters.\n"
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          },
+          {
+            "name": "sire_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Perform analysis for a specified sire ID, if provided.",
+              "title": "Sire Id"
+            },
+            "description": "Perform analysis for a specified sire ID, if provided."
+          },
+          {
+            "name": "stud_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Filter analysis to a specified sire stud code, if provided.",
+              "title": "Stud Code"
+            },
+            "description": "Filter analysis to a specified sire stud code, if provided."
+          },
+          {
+            "name": "sire_breed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "description": "\nFilter analysis to a specified sire breed, if provided.\n- Beef breeds are in a hard-coded list, used as-is, takes precedent over other lookups\n\n  - beef, Ona, AA, AD, AE, AF, AK, AM, AN, AR, AU, AW, BA, BB, BD, BE, BF, BG, BI, BL, BM, BN, BO, BQ, BR, BU, BW, BX, CA, CB, CC, CG, CH, CM, CN, CR, DE, DL, DM, DR, DS, ER, FA, FC, FL, FR, GA, GE, GI, GR, GV, GY, GZ, HB, HC, HH, HP, HY, IB, IK, IS, KB, KY, LM, LO, LR, LU, MA, MB, MC, ME, MG, MH, MI, ML, MO, MR, MU, MZ, NE, NO, NP, NS, OP, PA, PI, PZ, RA, RB, RD, RN, RO, RP, RR, RS, SA, SB, SE, SG, SH, SI, SK, SM, SP, SS, ST, SW, SX, TA, TB, TI, TL, TN, WA, WB, WD, WF, WP, XB, XT, XX\n\n- Other breeds follow the standardized breed codes from [StandardCattleBreedCodes](https://github.com/vas-dev/Morpheus/blob/2958813f7133857d6581766440372f7ae61e304e/Vas.Dal/flyway/sql/migrations/R__Reporting_HerdInventoryBreedKpis_StoredProcedure.sql#L65) stored procedure.\n\n- Unknown breeds ('' or NULL) may be requested with sire_breed=UN.\n\n- There are a number of rarer breeds which appear in the DairySires table but are not covered by\nany of these (examples: SR, PS, N, S, HT, ET, JT, W, DT, and about a dozen more that are\nexceptionally rare). These may be added to the beef breeds list in the future to be included,\notherwise they will not be able to be used as a sire breed filter.\n",
+              "title": "Sire Breed"
+            },
+            "description": "\nFilter analysis to a specified sire breed, if provided.\n- Beef breeds are in a hard-coded list, used as-is, takes precedent over other lookups\n\n  - beef, Ona, AA, AD, AE, AF, AK, AM, AN, AR, AU, AW, BA, BB, BD, BE, BF, BG, BI, BL, BM, BN, BO, BQ, BR, BU, BW, BX, CA, CB, CC, CG, CH, CM, CN, CR, DE, DL, DM, DR, DS, ER, FA, FC, FL, FR, GA, GE, GI, GR, GV, GY, GZ, HB, HC, HH, HP, HY, IB, IK, IS, KB, KY, LM, LO, LR, LU, MA, MB, MC, ME, MG, MH, MI, ML, MO, MR, MU, MZ, NE, NO, NP, NS, OP, PA, PI, PZ, RA, RB, RD, RN, RO, RP, RR, RS, SA, SB, SE, SG, SH, SI, SK, SM, SP, SS, ST, SW, SX, TA, TB, TI, TL, TN, WA, WB, WD, WF, WP, XB, XT, XX\n\n- Other breeds follow the standardized breed codes from [StandardCattleBreedCodes](https://github.com/vas-dev/Morpheus/blob/2958813f7133857d6581766440372f7ae61e304e/Vas.Dal/flyway/sql/migrations/R__Reporting_HerdInventoryBreedKpis_StoredProcedure.sql#L65) stored procedure.\n\n- Unknown breeds ('' or NULL) may be requested with sire_breed=UN.\n\n- There are a number of rarer breeds which appear in the DairySires table but are not covered by\nany of these (examples: SR, PS, N, S, HT, ET, JT, W, DT, and about a dozen more that are\nexceptionally rare). These may be added to the beef breeds list in the future to be included,\notherwise they will not be able to be used as a sire breed filter.\n"
+          },
+          {
+            "name": "semen_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "\nFilter analysis to a specified semen type, if provided.\n___\nEnum values:\n```\nUnsexed = 0\nSexedFemale = 1\nSexedMale = 2\nBeef = 3\nBeefSexedFemale = 4\nBeefSexedMale = 5\n```\nNote: Semen types do not currently implement `3`, `4`, or `5` for any dairy in the database.\n___\n",
+              "title": "Semen Type"
+            },
+            "description": "\nFilter analysis to a specified semen type, if provided.\n___\nEnum values:\n```\nUnsexed = 0\nSexedFemale = 1\nSexedMale = 2\nBeef = 3\nBeefSexedFemale = 4\nBeefSexedMale = 5\n```\nNote: Semen types do not currently implement `3`, `4`, or `5` for any dairy in the database.\n___\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ConceptionRiskResponse" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/conception-risk/sires": {
+      "get": {
+        "tags": ["conception-risk"],
+        "summary": "Conception sires",
+        "description": "Sires used for conception in the given date range.",
+        "operationId": "get_conception_sires_dairies__dairy_id__conception_risk_sires_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.207127",
+              "title": "Start Date"
+            },
+            "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.207127",
+              "title": "End Date"
+            },
+            "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ConceptionSiresResponse" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/embryo-conception-risk": {
+      "get": {
+        "tags": ["embryo-conception-risk"],
+        "summary": "Get a conception risk analysis for embryos by selected group and options",
+        "description": "If neither `start_date` nor `end_date` are provided, the default date range\nwill be `today-400D` to `today-35D`.\n\nIf just providing `end_date`, `start_date` is set to `today-400D`.\n\nIf date range needs to be defined, both `start_date` and `end_date` must be set.",
+        "operationId": "get_embryo_breeding_conception_risk_dairies__dairy_id__embryo_conception_risk_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "Starting embryo transfer date for analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.220311",
+              "title": "Start Date"
+            },
+            "description": "Starting embryo transfer date for analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "Ending embryo transfer date for analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.220311",
+              "title": "End Date"
+            },
+            "description": "Ending embryo transfer date for analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "$ref": "#/components/schemas/EmbryoSummaryGroup" }, { "type": "null" }],
+              "description": "The field used to group the embryo breedings for analysis.",
+              "default": "Grade",
+              "title": "Group By"
+            },
+            "description": "The field used to group the embryo breedings for analysis."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ConceptionRiskResponse" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/first-breeding-dim": {
+      "get": {
+        "tags": ["first-breeding"],
+        "summary": "Days in milk at first breeding, grouped by lactation, for the provided analysis period",
+        "description": "If neither `start_date` nor `end_date` are set, the default date range will be `today-365` to `today`.\n\nIf `end_date` is provided but not `start_date`, the analysis goes back 365 days from `end_date`.\n\n---\n### `summaryData`: Cows vs Heifers\nIf `fetch_heifers=true` then `overallAverages` and `trends` will contain a single key: `overall`.\nNote when herd uses AIDAT, returned `statedVWP` will be `null`.\n\nWhen `fetch_heifers=false` these will contain 4 keys: `overall`, `lactation1`, `lactation2`, and `lactation3`.\n\nIf an individual lactation group has no data, the data for the respective key will be `null`.",
+        "operationId": "get_breeding_dim_dairies__dairy_id__first_breeding_dim_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.252772",
+              "title": "Start Date"
+            },
+            "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.252772",
+              "title": "End Date"
+            },
+            "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "fetch_heifers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "\nReturn data on heifers instead of cows.\n\n- `true`: return only heifers with age at first breeding instead of DIM\n- `false`: return only cows with DIM at first breeding for current lactation\n",
+              "default": false,
+              "title": "Fetch Heifers"
+            },
+            "description": "\nReturn data on heifers instead of cows.\n\n- `true`: return only heifers with age at first breeding instead of DIM\n- `false`: return only cows with DIM at first breeding for current lactation\n"
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    { "$ref": "#/components/schemas/CowFirstBreedingResponse" },
+                    { "$ref": "#/components/schemas/HeiferFirstBreedingResponse" }
+                  ],
+                  "title": "Response Get Breeding Dim Dairies  Dairy Id  First Breeding Dim Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/interval-analysis": {
+      "get": {
+        "tags": ["inverval-analysis"],
+        "summary": "Get interval summary statistics for selected lactation group and options",
+        "description": "Currently returned:\n\n- Calving Interval\n\n- Days to Conception\n\n- Days to First Bred\n\n- Days to First Heat\n\nIf neither `start_date` nor `end_date` are set, the default date range will be\n`today-400D` to `today-35D`.\n\nIf just providing `end_date`, `start_date` is set to `today-400D`.\n\nIf date range needs to be defined, both `start_date` and `end_date` must be set.",
+        "operationId": "get_interval_summary_dairies__dairy_id__interval_analysis_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "$ref": "#/components/schemas/LactationGroup" }, { "type": "null" }],
+              "description": "\nSelect lactation group for analysis.\n\n- `0`: youngstocks\n- `1`: 1st lactation\n- `2`: 2nd lactation\n- `3`: 3rd+ lactations\n- `4`: (default) all cows\n",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "\nSelect lactation group for analysis.\n\n- `0`: youngstocks\n- `1`: 1st lactation\n- `2`: 2nd lactation\n- `3`: 3rd+ lactations\n- `4`: (default) all cows\n"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.262773",
+              "title": "Start Date"
+            },
+            "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.262773",
+              "title": "End Date"
+            },
+            "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IntervalAnalysisResponse" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/pregnancy-risk": {
+      "get": {
+        "tags": ["pregnancy-risk"],
+        "summary": "Pregnancy risk analysis by selected group and options",
+        "description": "If neither `start_date` nor `end_date` are provided, the default\ndate range will be 18 21-day periods ending `today`.\n\nIf `end_date` is provided but not `start_date`, the analysis goes\nback 18 21-day periods from `end_date`.\n---\n## Eligibility Qualification\nProviding a non-null `voluntary_waiting_period` query parameter will override for all cases.\n\nIf no override is provided, the default behavior is to use values from herd settings.\n\nHeifers (`lactation_group=0`) will attempt to use AIDAT when available, returning\n`null` for `usedVoluntaryWaitingPeriod`.\n\nIn case of invalid/missing herd settings, fallback values of `365` days of age for\nheifers or `50` days in milk for cows are used as a last resort.\n\nThe response field `eligibilityQualifer` provides which method was used,\n`aidat`, `provided`, `herdConfiguration`, or `fallback`.",
+        "operationId": "get_pregnancy_risk_dairies__dairy_id__pregnancy_risk_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "all_breedings",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "\nSelect analysis target breedings.\n\n- `False`: (default) includes just AI breedings\n- `True`: includes both AI & Bull Breedings\n",
+              "default": false,
+              "title": "All Breedings"
+            },
+            "description": "\nSelect analysis target breedings.\n\n- `False`: (default) includes just AI breedings\n- `True`: includes both AI & Bull Breedings\n"
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "$ref": "#/components/schemas/LactationGroup" }, { "type": "null" }],
+              "description": "\nOptionally restrict lactation group(s) for analysis.\n\n- `0`: for heifers\n- `1-3`: for 1st, 2nd, 3rd+ lactations\n- `4`: (default) for all cows\n",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "\nOptionally restrict lactation group(s) for analysis.\n\n- `0`: for heifers\n- `1-3`: for 1st, 2nd, 3rd+ lactations\n- `4`: (default) for all cows\n"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.274127",
+              "title": "Start Date"
+            },
+            "description": "Start date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }],
+              "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`",
+              "default": "2023-09-26T12:46:08.274127",
+              "title": "End Date"
+            },
+            "description": "End date of analysis in UTC datetime `YYYY-MM-DDT00:00:00`"
+          },
+          {
+            "name": "voluntary_waiting_period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Override voluntary waiting period for analysis",
+              "title": "Voluntary Waiting Period"
+            },
+            "description": "Override voluntary waiting period for analysis"
+          },
+          {
+            "name": "breeding_cycle",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "Return pregnancy risk by breeding cycle (DIM) instead of by date (default)",
+              "default": false,
+              "title": "Breeding Cycle"
+            },
+            "description": "Return pregnancy risk by breeding cycle (DIM) instead of by date (default)"
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PregnancyRiskResponse" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/overview-statistics/abortion-rate": {
+      "get": {
+        "tags": ["overview-statistics"],
+        "summary": "Abortion Rate",
+        "description": "Overview statistics endpoint. `{<key>: null}` is returned when there is not enough data to compute.",
+        "operationId": "abortion_rate_dairies__dairy_id__overview_statistics_abortion_rate_get",
+        "parameters": [
+          { "name": "dairy_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Dairy Id" } },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/Period" }],
+              "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days.",
+              "default": 90,
+              "title": "Period"
+            },
+            "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days."
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/LactationGroup" }],
+              "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+.",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FloatAverage" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/overview-statistics/actual-vwp": {
+      "get": {
+        "tags": ["overview-statistics"],
+        "summary": "Actual Vwp",
+        "description": "Overview statistics endpoint. `{<key>: null}` is returned when there is not enough data to compute.",
+        "operationId": "actual_vwp_dairies__dairy_id__overview_statistics_actual_vwp_get",
+        "parameters": [
+          { "name": "dairy_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Dairy Id" } },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/Period" }],
+              "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days.",
+              "default": 90,
+              "title": "Period"
+            },
+            "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days."
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/LactationGroup" }],
+              "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+.",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IntAverage" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/overview-statistics/conception-rate": {
+      "get": {
+        "tags": ["overview-statistics"],
+        "summary": "Conception Rate",
+        "description": "Overview statistics endpoint. `{<key>: null}` is returned when there is not enough data to compute.",
+        "operationId": "conception_rate_dairies__dairy_id__overview_statistics_conception_rate_get",
+        "parameters": [
+          { "name": "dairy_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Dairy Id" } },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/Period" }],
+              "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days.",
+              "default": 90,
+              "title": "Period"
+            },
+            "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days."
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/LactationGroup" }],
+              "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+.",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IntAverage" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/overview-statistics/first-breedings": {
+      "get": {
+        "tags": ["overview-statistics"],
+        "summary": "First Breedings",
+        "description": "Overview statistics endpoint. `{<key>: null}` is returned when there is not enough data to compute.",
+        "operationId": "first_breedings_dairies__dairy_id__overview_statistics_first_breedings_get",
+        "parameters": [
+          { "name": "dairy_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Dairy Id" } },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/Period" }],
+              "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days.",
+              "default": 90,
+              "title": "Period"
+            },
+            "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days."
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/LactationGroup" }],
+              "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+.",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IntAverage" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/overview-statistics/missed-breedings": {
+      "get": {
+        "tags": ["overview-statistics"],
+        "summary": "Missed Breedings",
+        "description": "Overview statistics endpoint. `{<key>: null}` is returned when there is not enough data to compute.",
+        "operationId": "missed_breedings_dairies__dairy_id__overview_statistics_missed_breedings_get",
+        "parameters": [
+          { "name": "dairy_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Dairy Id" } },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/LactationGroup" }],
+              "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+.",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Count" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/overview-statistics/pregnancy-risk": {
+      "get": {
+        "tags": ["overview-statistics"],
+        "summary": "Pregnancy Risk",
+        "description": "Overview statistics endpoint. `{<key>: null}` is returned when there is not enough data to compute.",
+        "operationId": "pregnancy_risk_dairies__dairy_id__overview_statistics_pregnancy_risk_get",
+        "parameters": [
+          { "name": "dairy_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Dairy Id" } },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/Period" }],
+              "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days.",
+              "default": 90,
+              "title": "Period"
+            },
+            "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days."
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/LactationGroup" }],
+              "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+.",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IntAverage" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/overview-statistics/service-rate": {
+      "get": {
+        "tags": ["overview-statistics"],
+        "summary": "Service Rate",
+        "description": "Overview statistics endpoint. `{<key>: null}` is returned when there is not enough data to compute.",
+        "operationId": "service_rate_dairies__dairy_id__overview_statistics_service_rate_get",
+        "parameters": [
+          { "name": "dairy_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Dairy Id" } },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/Period" }],
+              "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days.",
+              "default": 90,
+              "title": "Period"
+            },
+            "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days."
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/LactationGroup" }],
+              "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+.",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IntAverage" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/overview-statistics/services-per-conception": {
+      "get": {
+        "tags": ["overview-statistics"],
+        "summary": "Services Per Conception",
+        "description": "Overview statistics endpoint. `{<key>: null}` is returned when there is not enough data to compute.",
+        "operationId": "services_per_conception_dairies__dairy_id__overview_statistics_services_per_conception_get",
+        "parameters": [
+          { "name": "dairy_id", "in": "path", "required": true, "schema": { "type": "integer", "title": "Dairy Id" } },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/Period" }],
+              "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days.",
+              "default": 90,
+              "title": "Period"
+            },
+            "description": "Analysis period in days. Ex: 90 returns statistics for past 90 days."
+          },
+          {
+            "name": "lactation_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/LactationGroup" }],
+              "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+.",
+              "default": 4,
+              "title": "Lactation Group"
+            },
+            "description": "0 for heifers, 4 for all cows, or only lactation 1, 2, 3+."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FloatAverage" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/unbred/cows": {
+      "get": {
+        "tags": ["unbred-animals"],
+        "summary": "List unbred cows currently exceeding VWP",
+        "description": "Returns a list of animals currently unbred beyond `threshold` number of days eligible.",
+        "operationId": "get_unbred_cows_dairies__dairy_id__unbred_cows_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "threshold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }],
+              "description": "Minimum days of breeding eligibility to consider (defaults to config VWP).",
+              "title": "Threshold"
+            },
+            "description": "Minimum days of breeding eligibility to consider (defaults to config VWP)."
+          },
+          {
+            "name": "exceeds",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "Return animals which exceed the threshold (true), or animals which do not exceed the threshold (false).",
+              "default": true,
+              "title": "Exceeds"
+            },
+            "description": "Return animals which exceed the threshold (true), or animals which do not exceed the threshold (false)."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnbredCowsResponse" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    },
+    "/dairies/{dairy_id}/unbred/heifers": {
+      "get": {
+        "tags": ["unbred-animals"],
+        "summary": "List unbred heifers currently exceeding VWP",
+        "description": "Returns a list of animals currently unbred beyond `threshold` number of days eligible.",
+        "operationId": "get_unbred_heifers_dairies__dairy_id__unbred_heifers_get",
+        "parameters": [
+          {
+            "name": "dairy_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1, "title": "Dairy Id" }
+          },
+          {
+            "name": "threshold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }],
+              "description": "Minimum days of breeding eligibility to consider (defaults to config VWP).",
+              "title": "Threshold"
+            },
+            "description": "Minimum days of breeding eligibility to consider (defaults to config VWP)."
+          },
+          {
+            "name": "exceeds",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+              "description": "Return animals which exceed the threshold (true), or animals which do not exceed the threshold (false).",
+              "default": true,
+              "title": "Exceeds"
+            },
+            "description": "Return animals which exceed the threshold (true), or animals which do not exceed the threshold (false)."
+          },
+          {
+            "name": "source_farm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "integer" }, { "type": "null" }],
+              "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'.",
+              "title": "Source Farm"
+            },
+            "description": "Filter analysis to a specified source farm id, if provided. Use `source_farm=0` to specify 'no source farm'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnbredHeifersResponse" } } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HTTPValidationError" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AbortionAnalysis": {
+        "properties": {
+          "groupValue": { "type": "string", "title": "Groupvalue" },
+          "groupIdentifiers": { "anyOf": [{ "type": "object" }, { "type": "null" }], "title": "Groupidentifiers" },
+          "fields": { "$ref": "#/components/schemas/AbortionFields" }
+        },
+        "type": "object",
+        "required": ["groupValue", "groupIdentifiers", "fields"],
+        "title": "AbortionAnalysis"
+      },
+      "AbortionCountByDCC": {
+        "properties": {
+          "daysCarryingCalfRange": { "type": "string", "title": "Dayscarryingcalfrange" },
+          "counts": { "type": "integer", "title": "Counts" }
+        },
+        "type": "object",
+        "required": ["daysCarryingCalfRange", "counts"],
+        "title": "AbortionCountByDCC"
+      },
+      "AbortionFields": {
+        "properties": {
+          "abortionCount": { "type": "integer", "title": "Abortioncount" },
+          "pregnantCount": { "type": "integer", "title": "Pregnantcount" },
+          "abortionPercent": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Abortionpercent" },
+          "confidenceInterval": { "$ref": "#/components/schemas/ConfidenceInterval" }
+        },
+        "type": "object",
+        "required": ["abortionCount", "pregnantCount", "abortionPercent", "confidenceInterval"],
+        "title": "AbortionFields"
+      },
+      "AbortionRiskResponse": {
+        "properties": {
+          "abortionRisk": {
+            "items": { "$ref": "#/components/schemas/AbortionAnalysis" },
+            "type": "array",
+            "title": "Abortionrisk"
+          },
+          "groupName": { "type": "string", "title": "Groupname" },
+          "abortionCountByDCC": {
+            "anyOf": [
+              { "items": { "$ref": "#/components/schemas/AbortionCountByDCC" }, "type": "array" },
+              { "type": "null" }
+            ],
+            "title": "Abortioncountbydcc"
+          }
+        },
+        "type": "object",
+        "required": ["abortionRisk", "groupName", "abortionCountByDCC"],
+        "title": "AbortionRiskResponse"
+      },
+      "AbortionSummaryGroup": {
+        "type": "string",
+        "enum": ["LactationGroup", "Sire", "Month", "Technician", "StudCode"],
+        "title": "AbortionSummaryGroup"
+      },
+      "CalculatedVWPResponse": {
+        "properties": {
+          "calculatedVoluntaryWaitingPeriod": {
+            "items": { "$ref": "#/components/schemas/GroupedVWP" },
+            "type": "array",
+            "title": "Calculatedvoluntarywaitingperiod"
+          }
+        },
+        "type": "object",
+        "required": ["calculatedVoluntaryWaitingPeriod"],
+        "title": "CalculatedVWPResponse"
+      },
+      "ConceptionAnalysis": {
+        "properties": {
+          "groupValue": { "type": "string", "title": "Groupvalue" },
+          "groupIdentifiers": { "anyOf": [{ "type": "object" }, { "type": "null" }], "title": "Groupidentifiers" },
+          "fields": { "$ref": "#/components/schemas/ConceptionFields" }
+        },
+        "type": "object",
+        "required": ["groupValue", "groupIdentifiers", "fields"],
+        "title": "ConceptionAnalysis"
+      },
+      "ConceptionFields": {
+        "properties": {
+          "conceptionPercent": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Conceptionpercent" },
+          "pregnantCount": { "type": "integer", "title": "Pregnantcount" },
+          "openCount": { "type": "integer", "title": "Opencount" },
+          "unknownCount": { "type": "integer", "title": "Unknowncount" },
+          "abortCount": { "type": "integer", "title": "Abortcount" },
+          "totalCount": { "type": "integer", "title": "Totalcount" },
+          "percentTotal": { "type": "number", "title": "Percenttotal" },
+          "servicesPerConception": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Servicesperconception"
+          },
+          "confidenceInterval": { "$ref": "#/components/schemas/ConfidenceInterval" },
+          "standardDeviation": { "type": "number", "title": "Standarddeviation" }
+        },
+        "type": "object",
+        "required": [
+          "conceptionPercent",
+          "pregnantCount",
+          "openCount",
+          "unknownCount",
+          "abortCount",
+          "totalCount",
+          "percentTotal",
+          "servicesPerConception",
+          "confidenceInterval",
+          "standardDeviation"
+        ],
+        "title": "ConceptionFields"
+      },
+      "ConceptionRiskResponse": {
+        "properties": {
+          "conceptionRisk": {
+            "items": { "$ref": "#/components/schemas/ConceptionAnalysis" },
+            "type": "array",
+            "title": "Conceptionrisk"
+          },
+          "groupName": { "type": "string", "title": "Groupname" },
+          "omitted_breeding_counts": {
+            "anyOf": [{ "type": "integer" }, { "type": "null" }],
+            "title": "Omitted Breeding Counts"
+          }
+        },
+        "type": "object",
+        "required": ["conceptionRisk", "groupName", "omitted_breeding_counts"],
+        "title": "ConceptionRiskResponse"
+      },
+      "ConceptionSire": {
+        "properties": {
+          "dairySireId": { "type": "integer", "title": "Dairysireid" },
+          "sireName": { "type": "string", "title": "Sirename" },
+          "sireDefault": { "type": "string", "title": "Siredefault" },
+          "breed": { "type": "string", "title": "Breed" },
+          "studCode": { "type": "integer", "title": "Studcode" },
+          "companyName": { "type": "string", "title": "Companyname" },
+          "semenType": { "type": "integer", "title": "Sementype" }
+        },
+        "type": "object",
+        "required": ["dairySireId", "sireName", "sireDefault", "breed", "studCode", "companyName", "semenType"],
+        "title": "ConceptionSire"
+      },
+      "ConceptionSiresResponse": {
+        "properties": {
+          "sires": { "items": { "$ref": "#/components/schemas/ConceptionSire" }, "type": "array", "title": "Sires" }
+        },
+        "type": "object",
+        "required": ["sires"],
+        "title": "ConceptionSiresResponse"
+      },
+      "ConceptionSummaryGroup": {
+        "type": "string",
+        "enum": [
+          "LactationGroup",
+          "Sire",
+          "BreedingCode",
+          "Breed",
+          "Month",
+          "WeekDay",
+          "BreedingCycle",
+          "HeatInterval",
+          "Technician",
+          "StudCode",
+          "TimesBred"
+        ],
+        "title": "ConceptionSummaryGroup"
+      },
+      "ConfidenceInterval": {
+        "properties": {
+          "lowerBound": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Lowerbound" },
+          "upperBound": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Upperbound" }
+        },
+        "type": "object",
+        "required": ["lowerBound", "upperBound"],
+        "title": "ConfidenceInterval"
+      },
+      "Count": {
+        "properties": { "count": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Count" } },
+        "type": "object",
+        "required": ["count"],
+        "title": "Count"
+      },
+      "CowAverages": {
+        "properties": {
+          "overall": { "type": "integer", "title": "Overall" },
+          "lactation1": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Lactation1" },
+          "lactation2": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Lactation2" },
+          "lactation3": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Lactation3" }
+        },
+        "type": "object",
+        "required": ["overall", "lactation1", "lactation2", "lactation3"],
+        "title": "CowAverages"
+      },
+      "CowFirstBreeding": {
+        "properties": {
+          "dairyCowId": { "type": "integer", "title": "Dairycowid" },
+          "cowNumber": { "type": "integer", "title": "Cownumber" },
+          "lactationGroup": { "type": "integer", "title": "Lactationgroup" },
+          "breedingDate": { "type": "string", "title": "Breedingdate" },
+          "breedingPeriod": { "type": "string", "title": "Breedingperiod" },
+          "cowName": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Cowname" },
+          "visibleId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Visibleid" },
+          "controlNumber": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Controlnumber" },
+          "electronicId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Electronicid" },
+          "isoId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Isoid" },
+          "daysInMilkAtFirstBreeding": { "type": "integer", "title": "Daysinmilkatfirstbreeding" },
+          "freshPeriod": { "type": "string", "title": "Freshperiod" },
+          "freshDate": { "type": "string", "title": "Freshdate" }
+        },
+        "type": "object",
+        "required": [
+          "dairyCowId",
+          "cowNumber",
+          "lactationGroup",
+          "breedingDate",
+          "breedingPeriod",
+          "cowName",
+          "visibleId",
+          "controlNumber",
+          "electronicId",
+          "isoId",
+          "daysInMilkAtFirstBreeding",
+          "freshPeriod",
+          "freshDate"
+        ],
+        "title": "CowFirstBreeding"
+      },
+      "CowFirstBreedingResponse": {
+        "properties": {
+          "timeAtBreeding": {
+            "items": { "$ref": "#/components/schemas/CowFirstBreeding" },
+            "type": "array",
+            "title": "Timeatbreeding"
+          },
+          "summaryData": { "anyOf": [{ "$ref": "#/components/schemas/CowSummaryData" }, { "type": "null" }] },
+          "statedVWP": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Statedvwp" }
+        },
+        "type": "object",
+        "required": ["timeAtBreeding", "summaryData", "statedVWP"],
+        "title": "CowFirstBreedingResponse"
+      },
+      "CowSummaryData": {
+        "properties": {
+          "trends": { "items": { "$ref": "#/components/schemas/CowTrend" }, "type": "array", "title": "Trends" },
+          "overallAverages": { "anyOf": [{ "$ref": "#/components/schemas/CowAverages" }, { "type": "null" }] }
+        },
+        "type": "object",
+        "required": ["trends", "overallAverages"],
+        "title": "CowSummaryData"
+      },
+      "CowTrend": {
+        "properties": {
+          "period": { "type": "string", "title": "Period" },
+          "groupedPeriodName": { "type": "string", "title": "Groupedperiodname" },
+          "overall": { "$ref": "#/components/schemas/StatGroup" },
+          "lactation1": { "anyOf": [{ "$ref": "#/components/schemas/StatGroup" }, { "type": "null" }] },
+          "lactation2": { "anyOf": [{ "$ref": "#/components/schemas/StatGroup" }, { "type": "null" }] },
+          "lactation3": { "anyOf": [{ "$ref": "#/components/schemas/StatGroup" }, { "type": "null" }] }
+        },
+        "type": "object",
+        "required": ["period", "groupedPeriodName", "overall", "lactation1", "lactation2", "lactation3"],
+        "title": "CowTrend"
+      },
+      "EligibilityQualifer": {
+        "type": "string",
+        "enum": ["aidat", "default", "herdConfiguration", "provided"],
+        "title": "EligibilityQualifer"
+      },
+      "EmbryoSummaryGroup": {
+        "type": "string",
+        "enum": [
+          "Grade",
+          "Stage",
+          "BreedingCode",
+          "Storage",
+          "FreezeMethod",
+          "RecoveryType",
+          "Sire",
+          "Breed",
+          "EmbryoAge"
+        ],
+        "title": "EmbryoSummaryGroup"
+      },
+      "FloatAverage": {
+        "properties": { "average": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Average" } },
+        "type": "object",
+        "required": ["average"],
+        "title": "FloatAverage"
+      },
+      "GroupedVWP": {
+        "properties": {
+          "lactationGroup": { "type": "integer", "title": "Lactationgroup" },
+          "count": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Count" },
+          "calculatedVwp": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Calculatedvwp" }
+        },
+        "type": "object",
+        "required": ["lactationGroup", "count", "calculatedVwp"],
+        "title": "GroupedVWP"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": { "items": { "$ref": "#/components/schemas/ValidationError" }, "type": "array", "title": "Detail" }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HeiferAverages": {
+        "properties": { "overall": { "type": "integer", "title": "Overall" } },
+        "type": "object",
+        "required": ["overall"],
+        "title": "HeiferAverages"
+      },
+      "HeiferFirstBreeding": {
+        "properties": {
+          "dairyCowId": { "type": "integer", "title": "Dairycowid" },
+          "cowNumber": { "type": "integer", "title": "Cownumber" },
+          "lactationGroup": { "type": "integer", "title": "Lactationgroup" },
+          "breedingDate": { "type": "string", "title": "Breedingdate" },
+          "breedingPeriod": { "type": "string", "title": "Breedingperiod" },
+          "cowName": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Cowname" },
+          "visibleId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Visibleid" },
+          "controlNumber": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Controlnumber" },
+          "electronicId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Electronicid" },
+          "isoId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Isoid" },
+          "ageInDaysAtFirstBreeding": { "type": "number", "title": "Ageindaysatfirstbreeding" },
+          "ageInMonthsAtFirstBreeding": { "type": "number", "title": "Ageinmonthsatfirstbreeding" },
+          "birthPeriod": { "type": "string", "title": "Birthperiod" },
+          "birthDate": { "type": "string", "title": "Birthdate" }
+        },
+        "type": "object",
+        "required": [
+          "dairyCowId",
+          "cowNumber",
+          "lactationGroup",
+          "breedingDate",
+          "breedingPeriod",
+          "cowName",
+          "visibleId",
+          "controlNumber",
+          "electronicId",
+          "isoId",
+          "ageInDaysAtFirstBreeding",
+          "ageInMonthsAtFirstBreeding",
+          "birthPeriod",
+          "birthDate"
+        ],
+        "title": "HeiferFirstBreeding"
+      },
+      "HeiferFirstBreedingResponse": {
+        "properties": {
+          "timeAtBreeding": {
+            "items": { "$ref": "#/components/schemas/HeiferFirstBreeding" },
+            "type": "array",
+            "title": "Timeatbreeding"
+          },
+          "summaryData": { "anyOf": [{ "$ref": "#/components/schemas/HeiferSummaryData" }, { "type": "null" }] },
+          "statedVWP": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Statedvwp" }
+        },
+        "type": "object",
+        "required": ["timeAtBreeding", "summaryData", "statedVWP"],
+        "title": "HeiferFirstBreedingResponse"
+      },
+      "HeiferSummaryData": {
+        "properties": {
+          "trends": { "items": { "$ref": "#/components/schemas/Trend" }, "type": "array", "title": "Trends" },
+          "overallAverages": { "anyOf": [{ "$ref": "#/components/schemas/HeiferAverages" }, { "type": "null" }] }
+        },
+        "type": "object",
+        "required": ["trends", "overallAverages"],
+        "title": "HeiferSummaryData"
+      },
+      "IntAverage": {
+        "properties": { "average": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Average" } },
+        "type": "object",
+        "required": ["average"],
+        "title": "IntAverage"
+      },
+      "IntervalAnalysisResponse": {
+        "properties": {
+          "intervalStatistics": {
+            "items": { "$ref": "#/components/schemas/IntervalStatistics" },
+            "type": "array",
+            "title": "Intervalstatistics"
+          }
+        },
+        "type": "object",
+        "required": ["intervalStatistics"],
+        "title": "IntervalAnalysisResponse"
+      },
+      "IntervalStatistics": {
+        "properties": {
+          "fieldName": { "type": "string", "title": "Fieldname" },
+          "average": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Average" },
+          "count": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Count" },
+          "min": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Min" },
+          "max": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Max" },
+          "standardDeviation": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Standarddeviation" }
+        },
+        "type": "object",
+        "required": ["fieldName", "average", "count", "min", "max", "standardDeviation"],
+        "title": "IntervalStatistics"
+      },
+      "LactationGroup": { "type": "integer", "enum": [0, 1, 2, 3, 4], "title": "LactationGroup" },
+      "Period": { "type": "integer", "enum": [90, 180, 365], "title": "Period" },
+      "PregnancyAnalysis": {
+        "properties": {
+          "groupValue": { "type": "string", "title": "Groupvalue" },
+          "fields": { "$ref": "#/components/schemas/PregnancyAnalysisFields" }
+        },
+        "type": "object",
+        "required": ["groupValue", "fields"],
+        "title": "PregnancyAnalysis"
+      },
+      "PregnancyAnalysisFields": {
+        "properties": {
+          "bredEligibleCount": { "type": "integer", "title": "Bredeligiblecount" },
+          "bredCount": { "type": "integer", "title": "Bredcount" },
+          "bredPercent": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Bredpercent" },
+          "pregnantEligibleCount": { "type": "integer", "title": "Pregnanteligiblecount" },
+          "pregnantCount": { "type": "integer", "title": "Pregnantcount" },
+          "pregnantPercent": { "anyOf": [{ "type": "number" }, { "type": "null" }], "title": "Pregnantpercent" },
+          "abortCount": { "type": "integer", "title": "Abortcount" },
+          "confidenceInterval": { "$ref": "#/components/schemas/ConfidenceInterval" }
+        },
+        "type": "object",
+        "required": [
+          "bredEligibleCount",
+          "bredCount",
+          "bredPercent",
+          "pregnantEligibleCount",
+          "pregnantCount",
+          "pregnantPercent",
+          "abortCount",
+          "confidenceInterval"
+        ],
+        "title": "PregnancyAnalysisFields"
+      },
+      "PregnancyRiskResponse": {
+        "properties": {
+          "pregnancyRisk": {
+            "items": { "$ref": "#/components/schemas/PregnancyAnalysis" },
+            "type": "array",
+            "title": "Pregnancyrisk"
+          },
+          "eligibilityQualifer": { "$ref": "#/components/schemas/EligibilityQualifer" },
+          "usedVoluntaryWaitingPeriod": {
+            "anyOf": [{ "type": "integer" }, { "type": "null" }],
+            "title": "Usedvoluntarywaitingperiod"
+          }
+        },
+        "type": "object",
+        "required": ["pregnancyRisk", "eligibilityQualifer", "usedVoluntaryWaitingPeriod"],
+        "title": "PregnancyRiskResponse"
+      },
+      "StatGroup": {
+        "properties": {
+          "min": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Min" },
+          "mean": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Mean" },
+          "max": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Max" },
+          "actualVWP": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Actualvwp" },
+          "totalBred": { "type": "integer", "title": "Totalbred" }
+        },
+        "type": "object",
+        "required": ["min", "mean", "max", "actualVWP", "totalBred"],
+        "title": "StatGroup"
+      },
+      "Trend": {
+        "properties": {
+          "period": { "type": "string", "title": "Period" },
+          "groupedPeriodName": { "type": "string", "title": "Groupedperiodname" },
+          "overall": { "$ref": "#/components/schemas/StatGroup" }
+        },
+        "type": "object",
+        "required": ["period", "groupedPeriodName", "overall"],
+        "title": "Trend"
+      },
+      "UnbredCow": {
+        "properties": {
+          "dairyCowId": { "type": "integer", "title": "Dairycowid" },
+          "cowNumber": { "type": "integer", "title": "Cownumber" },
+          "cowName": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Cowname" },
+          "visibleId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Visibleid" },
+          "controlNumber": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Controlnumber" },
+          "penNumber": { "type": "integer", "title": "Pennumber" },
+          "electronicId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Electronicid" },
+          "isoId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Isoid" },
+          "daysInMilk": { "type": "integer", "title": "Daysinmilk" },
+          "freshDate": { "type": "string", "format": "date-time", "title": "Freshdate" },
+          "lactation": { "type": "integer", "title": "Lactation" }
+        },
+        "type": "object",
+        "required": [
+          "dairyCowId",
+          "cowNumber",
+          "cowName",
+          "visibleId",
+          "controlNumber",
+          "penNumber",
+          "electronicId",
+          "isoId",
+          "daysInMilk",
+          "freshDate",
+          "lactation"
+        ],
+        "title": "UnbredCow"
+      },
+      "UnbredCowsResponse": {
+        "properties": {
+          "usedThreshold": { "type": "integer", "title": "Usedthreshold" },
+          "animals": { "items": { "$ref": "#/components/schemas/UnbredCow" }, "type": "array", "title": "Animals" }
+        },
+        "type": "object",
+        "required": ["usedThreshold", "animals"],
+        "title": "UnbredCowsResponse"
+      },
+      "UnbredHeifer": {
+        "properties": {
+          "dairyCowId": { "type": "integer", "title": "Dairycowid" },
+          "cowNumber": { "type": "integer", "title": "Cownumber" },
+          "cowName": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Cowname" },
+          "visibleId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Visibleid" },
+          "controlNumber": { "anyOf": [{ "type": "integer" }, { "type": "null" }], "title": "Controlnumber" },
+          "penNumber": { "type": "integer", "title": "Pennumber" },
+          "electronicId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Electronicid" },
+          "isoId": { "anyOf": [{ "type": "string" }, { "type": "null" }], "title": "Isoid" },
+          "ageInDays": { "type": "integer", "title": "Ageindays" }
+        },
+        "type": "object",
+        "required": [
+          "dairyCowId",
+          "cowNumber",
+          "cowName",
+          "visibleId",
+          "controlNumber",
+          "penNumber",
+          "electronicId",
+          "isoId",
+          "ageInDays"
+        ],
+        "title": "UnbredHeifer"
+      },
+      "UnbredHeifersResponse": {
+        "properties": {
+          "usedThreshold": { "type": "integer", "title": "Usedthreshold" },
+          "animals": { "items": { "$ref": "#/components/schemas/UnbredHeifer" }, "type": "array", "title": "Animals" }
+        },
+        "type": "object",
+        "required": ["usedThreshold", "animals"],
+        "title": "UnbredHeifersResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": { "type": "string", "title": "Message" },
+          "type": { "type": "string", "title": "Error Type" }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
