@@ -1,6 +1,6 @@
 import path from 'path'
 import { generateApi } from 'swagger-typescript-api'
-
+// healthval_p_q_b
 generateApi({
   name: 'healthval.ts',
   // url: "https://staging.integration-vas.com/healthval/openapi.json",

@@ -1,7 +1,7 @@
 <% 
 /* 
 request Params - exists only if query params are not empty, otherwise it null
-parameters - has parsed path params (name, otional, description, type)
+parameters - has parsed path params (name, otional, description, type) and that's all. Fixed structure
 */
 %>
 <%
@@ -24,7 +24,7 @@ const requestConfigParam = {
     type: "RequestParams",
     defaultValue: "{}",
 }
-
+console.log('>>> pathParamsContentRaw: ', pathParamsContentRaw.type.replace(/^{\n/, '').replace(/\n}$/, '').replaceAll(',', '').trim())
 console.log('>>> route.request: ', route.request)
 console.log('>>> parameters:', parameters)
 console.log('>>> requestParams:', requestParams)
@@ -124,19 +124,13 @@ export const <%~ route.routeName.usage %> = (<% //~ wrapperArgs %>)<%~ config.to
 */
 
 <%
-function getInputPathParamsContent(properties) {
-    const inputPathRawArgs = Object.fromEntries(Object.entries(properties).filter(([key, value]) => value.in === 'path'))
-    const inputPathRawNames = Object.values(inputPathRawArgs).map(({name}) => name)
-    const content = getParseContent({properties: inputPathRawArgs}).replaceAll(',', '')
-    return content
+function getUnwrappedContent(content) {
+    return content.replace(/^{\n/, '').replace(/\n}$/, '').replaceAll(',', '').trim()
 }
 
-const inputPathParamsContent = getInputPathParamsContent(requestParams.properties) 
-const inputPathNamesContent =parameters.map(({name}) => name).join(', ')
-console.log('>>> p4')
-const inputQueryRawArgs = Object.fromEntries(Object.entries(requestParams.properties).filter(([key, value]) => value.in === 'query'))
-console.log('>>> inputQueryRawArgs: ', inputQueryRawArgs)
-const inputQueryContent = getParseContent({properties: inputQueryRawArgs}).replaceAll(',', '')
+const inputPathParamsContent = getUnwrappedContent(pathParamsContentRaw.type) 
+const inputPathNamesContent = parameters.map(({name}) => name).join(', ')
+const inputQueryContent = query && getUnwrappedContent(query.type)
 
 console.log('>>> getParseContent:inputRawArgs:',inputPathParamsContent)
 console.log('>>> route.routeName:', route.routeName)
@@ -146,16 +140,21 @@ const inputPathInterface = `Input${routeNameUppper}`
 const searchParamsInterface = `SearchParams${routeNameUppper}`
 const inputClientTypeName = `${routeNameUppper}Input`
 const outputClientTypeName = `${routeNameUppper}Output`
+const argsContent = [
+inputPathParamsContent && `input: ${inputPathInterface}`,
+inputQueryContent && `searchParams: ${searchParamsInterface}`
+].filter(v => Boolean(v)).join(',')
 %>
 
 interface <%~ inputPathInterface %> <%~ payload ? `extends ${payload.type}` : '' %> {
     <%~ inputPathParamsContent %>
 }
 
-
+<% if (inputQueryContent) { %>
 interface <%~ searchParamsInterface %> {
     <%~ inputQueryContent %>
 }
+<% } %>
 
 type <%~ inputClientTypeName %> = BaseInput & {}
 type <%~ outputClientTypeName %> = BaseOutput<<%~ type %>>
@@ -164,14 +163,13 @@ type <%~ outputClientTypeName %> = BaseOutput<<%~ type %>>
  *
 <%~ routeDocs.description %>
 
- *<% /* Here you can add some other JSDoc tags */ %><%~ config.extractRequestParams; JSON.stringify(rawWrapperArgs) %>
-
+ *<% /* Here you can add some other JSDoc tags */ %>
  * @author automated
  * @genereated <%~ route.routeName.usage %>
 <%~ routeDocs.lines %>
 
  */
-export const <%~ route.routeName.usage %> = (input: <%~ inputPathInterface%>, searchParams: <%~ searchParamsInterface %> ) => {
+export const <%~ route.routeName.usage %> = (<%~ argsContent %>) => {
     const { <%~ inputPathNamesContent %>, ...body} = input
 
     return new AxiosRestClient<<%~ inputClientTypeName %>, <%~ outputClientTypeName %>>({
@@ -181,7 +179,9 @@ export const <%~ route.routeName.usage %> = (input: <%~ inputPathInterface%>, se
         body,
         headers: new Headers({
             // TODO: add appropriate headers
-        }),
-        searchParams,
+        })<% if (inputQueryContent) { %>,
+        searchParams
+        <% } %>
+        
     });
 };

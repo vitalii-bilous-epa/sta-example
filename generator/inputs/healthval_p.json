@@ -25,6 +25,8 @@
             "description": "Company role identifier",
             "required": true,
             "schema": {
+              "maximum": 100,
+              "minimum": 0,
               "type": "integer",
               "format": "int64"
             }

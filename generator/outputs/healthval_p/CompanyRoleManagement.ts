@@ -9,7 +9,7 @@
  * ---------------------------------------------------------------
  */
 
-import { CompanyRoleCreateDto, CompanyRoleDto } from "./data-contracts";
+import { CompanyRoleCreateDto } from "./data-contracts";
 
 /*
  *
@@ -33,11 +33,11 @@ export const updateCompanyRole = () =>
     this.request<CompanyRoleCreateDto, void>({
         path: `/api/companies/${companyId}/roles/${companyRoleId}`,
         method: 'PUT',
-        query: query,        body: data,        secure: true,        type: ContentType.Json,        format: "json",        ...params,
+                        secure: true,                format: "json",        ...params,
     })
 */
 
-interface InputUpdateCompanyRole extends CompanyRoleDto {
+interface InputUpdateCompanyRole {
   /**
    * Company identifier
    * @format int64
@@ -50,16 +50,6 @@ interface InputUpdateCompanyRole extends CompanyRoleDto {
    * @max 100
    */
   companyRoleId: number;
-}
-
-interface SearchParamsUpdateCompanyRole {
-  /**
-   * Test identifier
-   * @format int64
-   * @min 0
-   * @max 2147483647
-   */
-  test_one?: number;
 }
 
 type UpdateCompanyRoleInput = BaseInput & {};
@@ -81,7 +71,7 @@ type UpdateCompanyRoleOutput = BaseOutput<CompanyRoleCreateDto>;
  * @response `403` `void` Forbidden
  * @response `404` `void` Company role not found
  */
-export const updateCompanyRole = (input: InputUpdateCompanyRole, searchParams: SearchParamsUpdateCompanyRole) => {
+export const updateCompanyRole = (input: InputUpdateCompanyRole) => {
   const { companyId, companyRoleId, ...body } = input;
 
   return new AxiosRestClient<UpdateCompanyRoleInput, UpdateCompanyRoleOutput>({
@@ -92,6 +82,5 @@ export const updateCompanyRole = (input: InputUpdateCompanyRole, searchParams: S
     headers: new Headers({
       // TODO: add appropriate headers
     }),
-    searchParams,
   });
 };

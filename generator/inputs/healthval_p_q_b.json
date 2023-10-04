@@ -1,6 +1,10 @@
 {
   "openapi": "3.0.2",
-  "info": { "title": "HealthVAL", "description": "Health event incidence summaries for a dairy", "version": "0.1.0" },
+  "info": {
+    "title": "HealthVAL",
+    "description": "Health event incidence summaries for a dairy",
+    "version": "0.1.0"
+  },
   "servers": [{ "url": "/healthval" }],
   "paths": {
     "/api/companies/{companyId}/roles/{companyRoleId}": {
@@ -25,6 +29,8 @@
             "description": "Company role identifier",
             "required": true,
             "schema": {
+              "maximum": 100,
+              "minimum": 0,
               "type": "integer",
               "format": "int64"
             }
@@ -37,8 +43,8 @@
             "schema": {
               "type": "integer",
               "format": "int64",
-              "min": 0,
-              "max": 100500
+              "maximum": 2147483647,
+              "minimum": 0
             }
           }
         ],
