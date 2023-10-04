@@ -9,7 +9,7 @@
  * ---------------------------------------------------------------
  */
 
-import { CompanyRoleCreateDto } from "./data-contracts";
+import { CompanyRoleCreateDto, CompanyRoleDto } from "./data-contracts";
 
 /*
  *
@@ -19,7 +19,7 @@ import { CompanyRoleCreateDto } from "./data-contracts";
  * @genereated updateCompanyRole * @tags Company Role Management
  * @name UpdateCompanyRole
  * @summary Updates a company role
- * @request PUT:/api/companies/{companyId}/roles/{companyRoleId}
+ * @request PUT:/api/companies/roles/
  * @secure
  * @response `200` `CompanyRoleCreateDto` Company role
  * @response `204` `void` Successful update
@@ -31,26 +31,11 @@ import { CompanyRoleCreateDto } from "./data-contracts";
 /*
 export const updateCompanyRole = () =>
     this.request<CompanyRoleCreateDto, void>({
-        path: `/api/companies/${companyId}/roles/${companyRoleId}`,
+        path: `/api/companies/roles/`,
         method: 'PUT',
-                        secure: true,                format: "json",        ...params,
+                body: data,        secure: true,        type: ContentType.Json,        format: "json",        ...params,
     })
 */
-
-interface InputUpdateCompanyRole {
-  /**
-   * Company identifier
-   * @format int64
-   */
-  companyId: number;
-  /**
-   * Company role identifier
-   * @format int64
-   * @min 0
-   * @max 100
-   */
-  companyRoleId: number;
-}
 
 type UpdateCompanyRoleInput = BaseInput & {};
 type UpdateCompanyRoleOutput = BaseOutput<CompanyRoleCreateDto>;
@@ -62,7 +47,7 @@ type UpdateCompanyRoleOutput = BaseOutput<CompanyRoleCreateDto>;
  * @genereated updateCompanyRole * @tags Company Role Management
  * @name UpdateCompanyRole
  * @summary Updates a company role
- * @request PUT:/api/companies/{companyId}/roles/{companyRoleId}
+ * @request PUT:/api/companies/roles/
  * @secure
  * @response `200` `CompanyRoleCreateDto` Company role
  * @response `204` `void` Successful update
@@ -71,12 +56,13 @@ type UpdateCompanyRoleOutput = BaseOutput<CompanyRoleCreateDto>;
  * @response `403` `void` Forbidden
  * @response `404` `void` Company role not found
  */
-export const updateCompanyRole = (input: InputUpdateCompanyRole) => {
-  const { companyId, companyRoleId } = input;
+export const updateCompanyRole = (input: CompanyRoleDto) => {
+  const { ...body } = input;
   return new AxiosRestClient<UpdateCompanyRoleInput, UpdateCompanyRoleOutput>({
-    resourcePath: `/api/companies/${companyId}/roles/${companyRoleId}`,
+    resourcePath: `/api/companies/roles/`,
   }).execute({
     method: "PUT",
+    body,
     headers: new Headers({
       // TODO: add appropriate headers
     }),

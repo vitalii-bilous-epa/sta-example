@@ -12,143 +12,36 @@ const { parameters, path, method, payload, query, formData, security, requestPar
 const { type, errorType, contentTypes } = route.response;
 const { HTTP_CLIENT, RESERVED_REQ_PARAMS_ARG_NAMES } = config.constants;
 const routeDocs = includeFile("./route-docs", { config, route, utils });
-const queryName = (query && query.name) || "query";
-const pathParams = _.values(parameters);
-const pathParamsNames = _.map(pathParams, "name");
-
-const isFetchTemplate = config.httpClientType === HTTP_CLIENT.FETCH;
-
-const requestConfigParam = {
-    name: specificArgNameResolver.resolve(RESERVED_REQ_PARAMS_ARG_NAMES),
-    optional: true,
-    type: "RequestParams",
-    defaultValue: "{}",
-}
-console.log('>>> pathParamsContentRaw: ', pathParamsContentRaw.type.replace(/^{\n/, '').replace(/\n}$/, '').replaceAll(',', '').trim())
-console.log('>>> route.request: ', route.request)
-console.log('>>> parameters:', parameters)
-console.log('>>> requestParams:', requestParams)
-console.log('>>> query:', query)
-console.log('>>> formData: ', formData)
-
-const argToTmpl = ({ name, optional, type, defaultValue }) => `${name}${!defaultValue && optional ? '?' : ''}: ${type}${defaultValue ? ` = ${defaultValue}` : ''}`;
-
-const rawWrapperArgs = config.extractRequestParams ?
-    _.compact([
-        requestParams && {
-          name: pathParams.length ? `{ ${_.join(pathParamsNames, ", ")}, ...${queryName} }` : queryName,
-          optional: false,
-          type: getInlineParseContent(requestParams),
-        },
-        ...(!requestParams ? pathParams : []),
-        payload,
-        requestConfigParam,
-    ]) :
-    _.compact([
-        ...pathParams,
-        query,
-        payload,
-        requestConfigParam, 
-    ])
-
-const wrapperArgs = _
-    // Sort by optionality
-    .sortBy(rawWrapperArgs, [o => o.optional])
-    .map(argToTmpl)
-    .join(', ')
-    console.log('===================================')
-    console.log('>>> contentTypes', contentTypes)
-    console.log('>>> payload: ', payload, getParseContent(payload))
-    console.log('>>> requestParams:', requestParams)
-    console.log('>>> rawWrapperArgs: ', rawWrapperArgs)
-    console.log('>>> getInlineParseContent(requestParams): ', getInlineParseContent(requestParams))
-    console.log('>>> getParseContent(requestParams): ', getParseContent(requestParams))
-    console.log('>>> wrapperArgs: ', wrapperArgs)
-// RequestParams["type"]
-const requestContentKind = {
-    "JSON": "ContentType.Json",
-    "URL_ENCODED": "ContentType.UrlEncoded",
-    "FORM_DATA": "ContentType.FormData",
-    "TEXT": "ContentType.Text",
-}
-// RequestParams["format"]
-const responseContentKind = {
-    "JSON": '"json"',
-    "IMAGE": '"blob"',
-    "FORM_DATA": isFetchTemplate ? '"formData"' : '"document"'
-}
-
-const bodyTmpl = _.get(payload, "name") || null;
-const queryTmpl = (query != null && queryName) || null;
-const bodyContentKindTmpl = requestContentKind[requestBodyInfo.contentKind] || null;
-const responseFormatTmpl = responseContentKind[responseBodyInfo.success && responseBodyInfo.success.schema && responseBodyInfo.success.schema.contentKind] || null;
-const securityTmpl = security ? 'true' : null;
-
-const describeReturnType = () => {
-    if (!config.toJS) return "";
-
-    switch(config.httpClientType) {
-        case HTTP_CLIENT.AXIOS: {
-          return `Promise<AxiosResponse<${type}>>`
-        }
-        default: {
-          return `Promise<HttpResponse<${type}, ${errorType}>`
-        }
-    }
-}
-
 %>
-/*
- *
-<%~ routeDocs.description %>
-
- *<% /* Here you can add some other JSDoc tags */ %><%~ config.extractRequestParams; JSON.stringify(rawWrapperArgs) %>
-
- * @author automated
- * @genereated <%~ route.routeName.usage %>
-<%~ routeDocs.lines %>
-
- */
-/*
-export const <%~ route.routeName.usage %> = (<% //~ wrapperArgs %>)<%~ config.toJS ? `: ${describeReturnType()}` : "" %> =>
-    <%~ config.singleHttpClient ? 'this.http.request' : 'this.request' %><<%~ type %>, <%~ errorType %>>({
-        path: `<%~ path %>`,
-        method: '<%~ _.upperCase(method) %>',
-        <%~ queryTmpl ? `query: ${queryTmpl},` : '' %>
-        <%~ bodyTmpl ? `body: ${bodyTmpl},` : '' %>
-        <%~ securityTmpl ? `secure: ${securityTmpl},` : '' %>
-        <%~ bodyContentKindTmpl ? `type: ${bodyContentKindTmpl},` : '' %>
-        <%~ responseFormatTmpl ? `format: ${responseFormatTmpl},` : '' %>
-        ...<%~ _.get(requestConfigParam, "name") %>,
-    })
-*/
 
 <%
 function getUnwrappedContent(content) {
     return content.replace(/^{\n/, '').replace(/\n}$/, '').replaceAll(',', '').trim()
 }
 
-const inputPathParamsContent = getUnwrappedContent(pathParamsContentRaw.type) 
+const inputPathParamsContent = pathParamsContentRaw && getUnwrappedContent(pathParamsContentRaw.type) 
 const inputPathNamesContent = parameters.map(({name}) => name).join(', ')
 const inputQueryContent = query && getUnwrappedContent(query.type)
-
-console.log('>>> getParseContent:inputRawArgs:',inputPathParamsContent)
-console.log('>>> route.routeName:', route.routeName)
-console.log('>>> inputQueryContent: ', inputQueryContent)
 const routeNameUppper = route.routeName.usage.charAt(0).toUpperCase() + route.routeName.usage.slice(1)
 const inputPathInterface = `Input${routeNameUppper}`
 const searchParamsInterface = `SearchParams${routeNameUppper}`
 const inputClientTypeName = `${routeNameUppper}Input`
 const outputClientTypeName = `${routeNameUppper}Output`
 const argsContent = [
-inputPathParamsContent && `input: ${inputPathInterface}`,
-inputQueryContent && `searchParams: ${searchParamsInterface}`
+    (inputPathParamsContent || payload) && `input: ${inputPathParamsContent ? inputPathInterface : payload.type}`,
+    inputQueryContent && `searchParams: ${searchParamsInterface}`
+].filter(v => Boolean(v)).join(',')
+const inputDestructurizedContent = [
+    inputPathParamsContent && inputPathNamesContent,
+    payload && `...body`
 ].filter(v => Boolean(v)).join(',')
 %>
 
+<% if (pathParamsContentRaw) { %>
 interface <%~ inputPathInterface %> <%~ payload ? `extends ${payload.type}` : '' %> {
     <%~ inputPathParamsContent %>
 }
+<% } %>
 
 <% if (inputQueryContent) { %>
 interface <%~ searchParamsInterface %> {
@@ -170,13 +63,14 @@ type <%~ outputClientTypeName %> = BaseOutput<<%~ type %>>
 
  */
 export const <%~ route.routeName.usage %> = (<%~ argsContent %>) => {
-    const { <%~ inputPathNamesContent %>, ...body} = input
-
+    <% if(inputPathParamsContent || payload) { %>
+    const { <%~ inputDestructurizedContent %> } = input
+    <% } %>
     return new AxiosRestClient<<%~ inputClientTypeName %>, <%~ outputClientTypeName %>>({
         resourcePath: `<%~ path %>`
     }).execute({
         method: '<%~ _.upperCase(method) %>',
-        body,
+        <% if (payload) { %> body, <% } %>
         headers: new Headers({
             // TODO: add appropriate headers
         })<% if (inputQueryContent) { %>,
