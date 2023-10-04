@@ -13,16 +13,6 @@ import { HttpClient, RequestParams, ContentType, HttpResponse } from "./<%~ conf
 import { <%~ dataContracts.join(", ") %> } from "./<%~ config.fileNames.dataContracts %>"
 <% } %>
 
-export class <%= apiClassName %><SecurityDataType = unknown><% if (!config.singleHttpClient) { %> extends HttpClient<SecurityDataType> <% } %> {
-<% if(config.singleHttpClient) { %>
-  http: HttpClient<SecurityDataType>;
-
-  constructor (http: HttpClient<SecurityDataType>) {
-    this.http = http;
-  }
+<% for (const route of routes) { %>
+  <%~ includeFile('./procedure-call-custom.ejs', { ...it, route }) %>
 <% } %>
-
-    <% for (const route of routes) { %>
-        <%~ includeFile('./procedure-call-custom.ejs', { ...it, route }) %>
-    <% } %>
-}

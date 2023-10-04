@@ -3,7 +3,7 @@ const { data, utils } = it;
 const { formatDescription, require, _ } = utils;
 
 const stringify = (value) => _.isObject(value) ? JSON.stringify(value) : _.isString(value) ? `"${value}"` : value
-console.log('>>> data-contract-jsdoc:data: ', data)
+// console.log('>>> data-contract-jsdoc:data: ', data)
 
 const jsDocLines = _.compact([
     data.title,

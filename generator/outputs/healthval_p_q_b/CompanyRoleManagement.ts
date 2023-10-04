@@ -61,6 +61,23 @@ interface SearchParamsUpdateCompanyRole {
 type UpdateCompanyRoleInput = BaseInput & {};
 type UpdateCompanyRoleOutput = BaseOutput<CompanyRoleCreateDto>;
 
+/*
+ *
+ * No description
+ *false
+ * @author automated
+ * @genereated updateCompanyRole * @tags Company Role Management
+ * @name UpdateCompanyRole
+ * @summary Updates a company role
+ * @request PUT:/api/companies/{companyId}/roles/{companyRoleId}
+ * @secure
+ * @response `200` `CompanyRoleCreateDto` Company role
+ * @response `204` `void` Successful update
+ * @response `400` `any` Bad request, invalid model
+ * @response `401` `void` Unauthorized
+ * @response `403` `void` Forbidden
+ * @response `404` `void` Company role not found
+ */
 export const updateCompanyRole = (input: InputUpdateCompanyRole, searchParams: SearchParamsUpdateCompanyRole) => {
   const { companyId, companyRoleId, ...body } = input;
 

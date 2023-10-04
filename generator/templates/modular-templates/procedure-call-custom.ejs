@@ -1,8 +1,14 @@
+<% 
+/* 
+request Params - exists only if query params are not empty, otherwise it null
+parameters - has parsed path params (name, otional, description, type)
+*/
+%>
 <%
 const { utils, route, config } = it;
 const { requestBodyInfo, responseBodyInfo, specificArgNameResolver } = route;
 const { _, getInlineParseContent, getParseContent, parseSchema, getComponentByRef, require } = utils;
-const { parameters, path, method, payload, query, formData, security, requestParams } = route.request;
+const { parameters, path, method, payload, query, formData, security, requestParams, pathParams: pathParamsContentRaw } = route.request;
 const { type, errorType, contentTypes } = route.response;
 const { HTTP_CLIENT, RESERVED_REQ_PARAMS_ARG_NAMES } = config.constants;
 const routeDocs = includeFile("./route-docs", { config, route, utils });
@@ -18,7 +24,12 @@ const requestConfigParam = {
     type: "RequestParams",
     defaultValue: "{}",
 }
+
+console.log('>>> route.request: ', route.request)
+console.log('>>> parameters:', parameters)
+console.log('>>> requestParams:', requestParams)
 console.log('>>> query:', query)
+console.log('>>> formData: ', formData)
 
 const argToTmpl = ({ name, optional, type, defaultValue }) => `${name}${!defaultValue && optional ? '?' : ''}: ${type}${defaultValue ? ` = ${defaultValue}` : ''}`;
 
@@ -46,8 +57,12 @@ const wrapperArgs = _
     .map(argToTmpl)
     .join(', ')
     console.log('===================================')
+    console.log('>>> contentTypes', contentTypes)
+    console.log('>>> payload: ', payload, getParseContent(payload))
     console.log('>>> requestParams:', requestParams)
     console.log('>>> rawWrapperArgs: ', rawWrapperArgs)
+    console.log('>>> getInlineParseContent(requestParams): ', getInlineParseContent(requestParams))
+    console.log('>>> getParseContent(requestParams): ', getParseContent(requestParams))
     console.log('>>> wrapperArgs: ', wrapperArgs)
 // RequestParams["type"]
 const requestContentKind = {
@@ -95,7 +110,7 @@ const describeReturnType = () => {
 
  */
 /*
-<%~ route.routeName.usage %> = (<% //~ wrapperArgs %>)<%~ config.toJS ? `: ${describeReturnType()}` : "" %> =>
+export const <%~ route.routeName.usage %> = (<% //~ wrapperArgs %>)<%~ config.toJS ? `: ${describeReturnType()}` : "" %> =>
     <%~ config.singleHttpClient ? 'this.http.request' : 'this.request' %><<%~ type %>, <%~ errorType %>>({
         path: `<%~ path %>`,
         method: '<%~ _.upperCase(method) %>',
@@ -108,18 +123,65 @@ const describeReturnType = () => {
     })
 */
 
-export const <%~ route.routeName.usage %> = (<%~ wrapperArgs %>) => {
-    /*
-    return new AxiosRestClient<properInputType, <%~ type %>>({
-        baseUrl: DEFAULT_API_URL.toString(),
+<%
+function getInputPathParamsContent(properties) {
+    const inputPathRawArgs = Object.fromEntries(Object.entries(properties).filter(([key, value]) => value.in === 'path'))
+    const inputPathRawNames = Object.values(inputPathRawArgs).map(({name}) => name)
+    const content = getParseContent({properties: inputPathRawArgs}).replaceAll(',', '')
+    return content
+}
+
+const inputPathParamsContent = getInputPathParamsContent(requestParams.properties) 
+const inputPathNamesContent =parameters.map(({name}) => name).join(', ')
+console.log('>>> p4')
+const inputQueryRawArgs = Object.fromEntries(Object.entries(requestParams.properties).filter(([key, value]) => value.in === 'query'))
+console.log('>>> inputQueryRawArgs: ', inputQueryRawArgs)
+const inputQueryContent = getParseContent({properties: inputQueryRawArgs}).replaceAll(',', '')
+
+console.log('>>> getParseContent:inputRawArgs:',inputPathParamsContent)
+console.log('>>> route.routeName:', route.routeName)
+console.log('>>> inputQueryContent: ', inputQueryContent)
+const routeNameUppper = route.routeName.usage.charAt(0).toUpperCase() + route.routeName.usage.slice(1)
+const inputPathInterface = `Input${routeNameUppper}`
+const searchParamsInterface = `SearchParams${routeNameUppper}`
+const inputClientTypeName = `${routeNameUppper}Input`
+const outputClientTypeName = `${routeNameUppper}Output`
+%>
+
+interface <%~ inputPathInterface %> <%~ payload ? `extends ${payload.type}` : '' %> {
+    <%~ inputPathParamsContent %>
+}
+
+
+interface <%~ searchParamsInterface %> {
+    <%~ inputQueryContent %>
+}
+
+type <%~ inputClientTypeName %> = BaseInput & {}
+type <%~ outputClientTypeName %> = BaseOutput<<%~ type %>>
+
+/*
+ *
+<%~ routeDocs.description %>
+
+ *<% /* Here you can add some other JSDoc tags */ %><%~ config.extractRequestParams; JSON.stringify(rawWrapperArgs) %>
+
+ * @author automated
+ * @genereated <%~ route.routeName.usage %>
+<%~ routeDocs.lines %>
+
+ */
+export const <%~ route.routeName.usage %> = (input: <%~ inputPathInterface%>, searchParams: <%~ searchParamsInterface %> ) => {
+    const { <%~ inputPathNamesContent %>, ...body} = input
+
+    return new AxiosRestClient<<%~ inputClientTypeName %>, <%~ outputClientTypeName %>>({
         resourcePath: `<%~ path %>`
     }).execute({
         method: '<%~ _.upperCase(method) %>',
-        axiosInstance,
+        body,
         headers: new Headers({
-            authorization: `Bearer ${getItem(LOCAL_STORAGE_JWT)}`,
-            }),
-        timeout: 10000,
+            // TODO: add appropriate headers
+        }),
+        searchParams,
     });
-    */
 };

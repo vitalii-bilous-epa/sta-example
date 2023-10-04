@@ -4,8 +4,8 @@ import { generateApi } from 'swagger-typescript-api'
 generateApi({
   name: 'healthval.ts',
   // url: "https://staging.integration-vas.com/healthval/openapi.json",
-  input: path.resolve(process.cwd(), './generator/inputs/healthval_1.json'),
-  output: path.resolve(process.cwd(), './generator/outputs/healthval'),
+  input: path.resolve(process.cwd(), './generator/inputs/healthval_p_q_b.json'),
+  output: path.resolve(process.cwd(), './generator/outputs/healthval_p_q_b'),
   templates: path.resolve(process.cwd(), './generator/templates/modular-templates'),
   moduleNameFirstTag: true,
   defaultResponseAsSuccess: false,
